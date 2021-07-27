@@ -19,8 +19,11 @@ Fabulous Clouds has 2 major features: vibrant clouds and cloud layers. Vibrant c
 ```
 
 This example enables the default vanilla cloud layer and adds a cloud layer 64 blocks above normal cloud height. The negative speed means it will go in the opposite direction to the default cloud layer. Cloud layers all have an `offset`, `scale` and `speed`:
+
 `offset` is how many blocks above or below cloud height the layer is positioned. (default `0.0`)
+
 `scale` is how big the cloud layer is. (default `1.0`)
+
 `speed` is how fast the cloud layer moves. (default `1.0`)
 
 You may add this mod to your modpack.
