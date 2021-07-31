@@ -1,5 +1,6 @@
 plugins {
 	id 'fabric-loom' version '0.9-SNAPSHOT'
+	id "com.modrinth.minotaur" version "1.2.1"
 	id 'maven-publish'
 }
 
@@ -61,6 +62,20 @@ jar {
 	from("LICENSE") {
 		rename { "${it}_${project.archivesBaseName}"}
 	}
+}
+
+import com.modrinth.minotaur.TaskModrinthUpload
+
+task publishModrinth (type: TaskModrinthUpload) {
+	token = System.getenv("MODRINTH_TOKEN")
+	projectId = project.archivesBaseName
+	versionNumber = project.version
+	uploadFile = remapJar
+	changelog = "For a list of changes, please refer to https://github.com/fabulousclouds-fabric/releases/tag/v${project.version}"
+
+	project.mr_game_versions.split(',').each { addGameVersion it }
+
+	addLoader('fabric') // Can be fabric or forge. Modrinth will support liteloader and rift at a later date.
 }
 
 // configure the maven publication
