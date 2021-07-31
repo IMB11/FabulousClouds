@@ -25,38 +25,9 @@ public class MixinClientWorld {
             float[] fogColor = RenderSystem.getShaderFogColor();
 
             double[] tint = new double[3];
-            tint[0] = fogColor[0] * cloudColor.x;
-            tint[1] = fogColor[1] * cloudColor.y;
-            tint[2] = fogColor[2] * cloudColor.z;
-
-            // TODO: FIX RAIN CLOUD COLORS
-            assert MinecraftClient.getInstance().world != null;
-            if (!MinecraftClient.getInstance().world.isRaining()) {
-                if (tint[0] < 0.06) {
-                    tint[0] = 0.06;
-                }
-                if (tint[1] < 0.06) {
-                    tint[1] = 0.06;
-                }
-                if (tint[2] < 0.1) {
-                    tint[2] = 0.1;
-                }
-            } else if (!MinecraftClient.getInstance().world.isDay()) {
-                if (tint[0] < 0.06) {
-                    tint[0] = (0.06 + tint[0]) / 2;
-                }
-                if (tint[1] < 0.06) {
-                    tint[1] = (0.06 + tint[1]) / 2;
-                }
-                if (tint[2] < 0.1) {
-                    tint[2] = (0.1 + tint[2]) / 2;
-                }
-                if (MinecraftClient.getInstance().world.isThundering()) {
-                    tint[0] *= 0.8;
-                    tint[1] *= 0.8;
-                    tint[2] *= 0.8;
-                }
-            }
+            tint[0] = (fogColor[0] + cloudColor.x) / 2;
+            tint[1] = (fogColor[1] + cloudColor.y) / 2;
+            tint[2] = (fogColor[2] + cloudColor.z) / 2;
 
             cir.setReturnValue(new Vec3d(tint[0], tint[1], tint[2]));
         }
