@@ -71,7 +71,6 @@ task publishModrinth (type: TaskModrinthUpload) {
 	projectId = project.archivesBaseName
 	versionNumber = project.version
 	uploadFile = remapJar
-	changelog = "For a list of changes, please refer to https://github.com/fabulousclouds-fabric/releases/tag/v${project.version}"
 
 	project.mr_game_versions.split(',').each { addGameVersion it }
 
