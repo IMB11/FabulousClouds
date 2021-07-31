@@ -21,8 +21,8 @@ jobs:
         run: chmod +x gradlew
       - name: Upload assets to Modrinth
         run: ./gradlew build publishModrinth
-          env:
-            MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
       - name: Upload assets to GitHub
         uses: AButler/upload-release-assets@v2.0
         with:
