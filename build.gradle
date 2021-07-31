@@ -68,7 +68,7 @@ import com.modrinth.minotaur.TaskModrinthUpload
 
 task publishModrinth (type: TaskModrinthUpload) {
 	token = System.getenv("MODRINTH_TOKEN")
-	projectId = project.archivesBaseName
+	projectId = 'Dx7R69WU'
 	versionNumber = project.version
 	uploadFile = remapJar
 
