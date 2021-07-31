@@ -20,7 +20,7 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Upload assets to Modrinth
-        run: ./gradlew build publishModrinth
+        run: ./gradlew build publishModrinth --stacktrace
         env:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
       - name: Upload assets to GitHub
