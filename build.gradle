@@ -67,7 +67,6 @@ jar {
 import com.modrinth.minotaur.TaskModrinthUpload
 
 task publishModrinth (type: TaskModrinthUpload) {
-	println("Using token ${System.getenv("MODRINTH_TOKEN")}")
 	token = System.getenv('MODRINTH_TOKEN')
 	projectId = 'Dx7R69WU'
 	versionNumber = project.version
