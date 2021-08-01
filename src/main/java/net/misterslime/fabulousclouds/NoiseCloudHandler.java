@@ -47,19 +47,6 @@ public final class NoiseCloudHandler {
         updateCloudTexCount();
     }
 
-    public static int getCloudTexCount() {
-        long time = MinecraftClient.getInstance().world.getTime();
-        long idx = time / 80;
-
-        if (idx > cloudTexTimeIdx) {
-            cloudTexTimeIdx = idx;
-
-            updateCloudTexCount();
-        }
-
-        return cloudTexCount;
-    }
-
     private static void updateCloudTexCount() {
         if (cloudsTexture == null || cloudsTexture.getImage() == null) {
             cloudTexCount = 0;
