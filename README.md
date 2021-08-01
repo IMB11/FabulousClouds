@@ -1,6 +1,6 @@
 Fabulous Clouds is a 1.17 Fabric mod that makes minecraft's clouds look much better. It isn't going to be ported to Forge or be backported.
 
-![](https://cdn.discordapp.com/attachments/750122839738286177/869395008262897694/Fabulous_Clouds.png)
+![](https://cdn.discordapp.com/attachments/870400219525832795/871180457717415946/2021-07-31_17.59.38.png)
 
 Fabulous Clouds has 2 major features: vibrant clouds and cloud layers. Vibrant clouds make the clouds change color in sunrise/sunset similar to bedrock edition. Cloud layers be changed in the `.minecraft/config/fabulous-clouds` config file:
 
