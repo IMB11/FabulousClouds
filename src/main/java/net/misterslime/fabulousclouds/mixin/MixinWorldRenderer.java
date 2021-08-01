@@ -6,25 +6,37 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.option.CloudRenderMode;
 import net.minecraft.client.render.*;
+import net.minecraft.client.texture.NativeImage;
+import net.minecraft.client.texture.NativeImageBackedTexture;
+import net.minecraft.client.texture.TextureManager;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.noise.SimplexNoiseSampler;
 import net.minecraft.world.World;
+import net.minecraft.world.gen.SimpleRandom;
 import net.misterslime.fabulousclouds.FabulousClouds;
+import net.misterslime.fabulousclouds.NoiseCloudHandler;
 import net.misterslime.fabulousclouds.config.FabulousCloudsConfig;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.Random;
 
 @Mixin(WorldRenderer.class)
 public final class MixinWorldRenderer {
+
+    private static final int COLOR = 255 << 24 | 255 << 16 | 255 << 8 | 255;
 
     @Final
     @Shadow
@@ -55,9 +67,21 @@ public final class MixinWorldRenderer {
     @Shadow
     @NotNull
     private VertexBuffer cloudsBuffer;
+    @Unique
+    private boolean initializedClouds = false;
 
     public MixinWorldRenderer() {
         throw new NullPointerException("Null cannot be cast to non-null type.");
+    }
+
+    @Redirect(method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Matrix4f;FDDD)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderTexture(ILnet/minecraft/util/Identifier;)V"))
+    private void bindFabulousClouds(int i, Identifier id) {
+        // TODO: disabled
+        TextureManager textureManager = MinecraftClient.getInstance().getTextureManager();
+        registerCloudsNoise(textureManager);
+        NoiseCloudHandler.update();
+
+        RenderSystem._setShaderTexture(i, id);
     }
 
     @Inject(method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Matrix4f;FDDD)V", at = @At("HEAD"), cancellable = true)
@@ -72,6 +96,29 @@ public final class MixinWorldRenderer {
             if (!config.enable_default_cloud_layer) {
                 ci.cancel();
             }
+        }
+    }
+
+    private void registerCloudsNoise(TextureManager textureManager) {
+
+        if (!this.initializedClouds) {
+            NativeImage image = new NativeImage(256, 256, false);
+
+            Random random = new Random();
+            SimplexNoiseSampler noise = new SimplexNoiseSampler(new SimpleRandom(random.nextLong()));
+
+            for (int x = 0; x < 256; x++) {
+                for (int z = 0; z < 256; z++) {
+                    if (noise.sample(x / 16.0, 0, z / 16.0) * 2.5 < random.nextDouble()) {
+                        image.setPixelColor(x, z, (int) (noise.sample(x / 16.0, 0, z / 16.0) * 2.5));
+                    }
+                }
+            }
+
+            NativeImageBackedTexture texture = new NativeImageBackedTexture(image);
+            textureManager.registerTexture(CLOUDS, texture);
+            NoiseCloudHandler.setTexture(texture);
+            this.initializedClouds = true;
         }
     }
 
@@ -120,6 +167,7 @@ public final class MixinWorldRenderer {
 
             RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
             RenderSystem.setShaderTexture(0, CLOUDS);
+
             BackgroundRenderer.setFogBlack();
             matrices.push();
             matrices.scale(12.0F, 1.0F, 12.0F);
