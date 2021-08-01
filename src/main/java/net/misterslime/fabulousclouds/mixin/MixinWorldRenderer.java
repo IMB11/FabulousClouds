@@ -76,7 +76,6 @@ public final class MixinWorldRenderer {
 
     @Redirect(method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Matrix4f;FDDD)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderTexture(ILnet/minecraft/util/Identifier;)V"))
     private void bindFabulousClouds(int i, Identifier id) {
-        // TODO: disabled
         TextureManager textureManager = MinecraftClient.getInstance().getTextureManager();
         registerCloudsNoise(textureManager);
         NoiseCloudHandler.update();
@@ -100,7 +99,6 @@ public final class MixinWorldRenderer {
     }
 
     private void registerCloudsNoise(TextureManager textureManager) {
-
         if (!this.initializedClouds) {
             NativeImage image = new NativeImage(256, 256, false);
 

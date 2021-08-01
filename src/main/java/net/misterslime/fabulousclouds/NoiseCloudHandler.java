@@ -1,9 +1,19 @@
 package net.misterslime.fabulousclouds;
 
+import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.world.StructureWorldAccess;
+import net.minecraft.world.World;
+
+import java.nio.file.Watchable;
+import java.util.Random;
 
 public final class NoiseCloudHandler {
+
+    private static final int COLOR = 255 << 24 | 255 << 16 | 255 << 8 | 255;
 
     private static long cloudIdx = -1;
     private static long timeIdx = -1;
@@ -38,6 +48,35 @@ public final class NoiseCloudHandler {
     }
 
     public static void updateImage(long time) {
+        Random random = new Random(time);
+        NativeImage texture = cloudsTexture.getImage();
+
+        if (MinecraftClient.getInstance().world.isRaining()) {
+            int count = random.nextInt(4000) + 4000;
+
+            for (int i = 0; i < count; i++) {
+                texture.setPixelColor(random.nextInt(256), random.nextInt(256), COLOR);
+            }
+
+            count = random.nextInt(500) + 500;
+
+            for (int i = 0; i < count; i++) {
+                texture.setPixelColor(random.nextInt(256), random.nextInt(256), 0);
+            }
+        } else {
+            int count = random.nextInt(4000) + 4000;
+
+            for (int i = 0; i < count; i++) {
+                texture.setPixelColor(random.nextInt(256), random.nextInt(256), 0);
+            }
+
+            count = random.nextInt(500) + 500;
+
+            for (int i = 0; i < count; i++) {
+                texture.setPixelColor(random.nextInt(256), random.nextInt(256), COLOR);
+            }
+        }
+
         cloudsTexture.upload();
     }
 
