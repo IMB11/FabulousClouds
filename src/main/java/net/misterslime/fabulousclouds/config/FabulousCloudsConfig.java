@@ -11,6 +11,7 @@ import java.nio.file.Path;
 public class FabulousCloudsConfig {
 
     public boolean vibrant_clouds = true;
+    public float vibrance_intensity = 1.0f;
     public boolean enable_default_cloud_layer = true;
     public CloudLayer[] cloud_layers = new CloudLayer[] {
             new CloudLayer(64, 1.25f, -1.0f)
