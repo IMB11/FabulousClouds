@@ -178,7 +178,7 @@ public final class MixinWorldRenderer {
         matrices.translate(-adjustedX, adjustedY, -adjustedZ);
         if (this.cloudsBuffer != null) {
             int cloudMainIndex = this.lastCloudsRenderMode == CloudRenderMode.FANCY ? 0 : 1;
-
+          
             for (int cloudIndex = 1; cloudMainIndex <= cloudIndex; ++cloudMainIndex) {
                 if (cloudMainIndex == 0) {
                     RenderSystem.colorMask(false, false, false, false);
