@@ -6,6 +6,9 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.option.CloudRenderMode;
 import net.minecraft.client.render.*;
+import net.minecraft.client.texture.NativeImage;
+import net.minecraft.client.texture.NativeImageBackedTexture;
+import net.minecraft.client.texture.TextureManager;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.Identifier;
@@ -14,17 +17,24 @@ import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.misterslime.fabulousclouds.FabulousClouds;
+import net.misterslime.fabulousclouds.NoiseCloudHandler;
 import net.misterslime.fabulousclouds.config.FabulousCloudsConfig;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.Random;
 
 @Mixin(WorldRenderer.class)
 public final class MixinWorldRenderer {
+
+    private static final int COLOR = 255 << 24 | 255 << 16 | 255 << 8 | 255;
 
     @Final
     @Shadow
@@ -55,9 +65,22 @@ public final class MixinWorldRenderer {
     @Shadow
     @NotNull
     private VertexBuffer cloudsBuffer;
+    @Unique
+    private boolean initializedClouds = false;
 
     public MixinWorldRenderer() {
         throw new NullPointerException("Null cannot be cast to non-null type.");
+    }
+
+    @Redirect(method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Matrix4f;FDDD)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderTexture(ILnet/minecraft/util/Identifier;)V"))
+    private void bindFabulousClouds(int i, Identifier id) {
+        if (FabulousClouds.getConfig().noise_clouds) {
+            TextureManager textureManager = MinecraftClient.getInstance().getTextureManager();
+            registerCloudsNoise(textureManager);
+            NoiseCloudHandler.update();
+
+            RenderSystem._setShaderTexture(i, id);
+        }
     }
 
     @Inject(method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Matrix4f;FDDD)V", at = @At("HEAD"), cancellable = true)
@@ -76,6 +99,45 @@ public final class MixinWorldRenderer {
             if (!config.enable_default_cloud_layer) {
                 ci.cancel();
             }
+        }
+    }
+  
+    private void registerCloudsNoise(TextureManager textureManager) {
+        if (!this.initializedClouds) {
+            NativeImage image = new NativeImage(256, 256, false);
+
+            Random random = new Random();
+            NoiseCloudHandler.initNoise(random);
+
+            double cloudiness = random.nextDouble();
+
+            for (int x = 0; x < 256; x++) {
+                for (int z = 0; z < 256; z++) {
+                    if (NoiseCloudHandler.noise.sample(x / 16.0, 0, z / 16.0) * 2.5 < cloudiness || image.getPixelColor(x, z) != 0) {
+                        image.setPixelColor(x, z, (int) (NoiseCloudHandler.noise.sample(x / 16.0, 0, z / 16.0) * 2.5));
+                    }
+                }
+            }
+
+            /*int count = random.nextInt(2000) + 2000;
+
+            for (int i = 0; i < count; i++) {
+                int x = random.nextInt(256);
+                int z = random.nextInt(256);
+
+                image.setPixelColor(x, z, (int) (NoiseCloudHandler.noise.sample(x / 16.0, 0, z / 16.0) * 2.5));
+            }
+
+            count /= 4;
+
+            for (int i = 0; i < count; i++) {
+                image.setPixelColor(random.nextInt(256), random.nextInt(256), 0);
+            }*/
+
+            NativeImageBackedTexture texture = new NativeImageBackedTexture(image);
+            textureManager.registerTexture(CLOUDS, texture);
+            NoiseCloudHandler.setTexture(texture);
+            this.initializedClouds = true;
         }
     }
 
@@ -128,7 +190,7 @@ public final class MixinWorldRenderer {
         matrices.translate(-adjustedX, adjustedY, -adjustedZ);
         if (this.cloudsBuffer != null) {
             int cloudMainIndex = this.lastCloudsRenderMode == CloudRenderMode.FANCY ? 0 : 1;
-
+          
             for (int cloudIndex = 1; cloudMainIndex <= cloudIndex; ++cloudMainIndex) {
                 if (cloudMainIndex == 0) {
                     RenderSystem.colorMask(false, false, false, false);
