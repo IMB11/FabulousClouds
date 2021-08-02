@@ -77,6 +77,7 @@ public final class MixinWorldRenderer {
     @Redirect(method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Matrix4f;FDDD)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderTexture(ILnet/minecraft/util/Identifier;)V", remap = false))
     private void bindFabulousCloudsDev(int i, Identifier id) {
         if (FabulousClouds.getConfig().noise_clouds) {
+            registerClouds(MinecraftClient.getInstance().getTextureManager());
             NoiseCloudHandler.update();
 
             RenderSystem._setShaderTexture(i, id);
@@ -87,6 +88,7 @@ public final class MixinWorldRenderer {
     @Redirect(method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Matrix4f;FDDD)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderTexture(ILnet/minecraft/class_2960;)V",  remap = false))
     private void bindFabulousCloudsProd(int i, Identifier id) {
         if (FabulousClouds.getConfig().noise_clouds) {
+            registerClouds(MinecraftClient.getInstance().getTextureManager());
             NoiseCloudHandler.update();
 
             RenderSystem._setShaderTexture(i, id);
@@ -97,8 +99,7 @@ public final class MixinWorldRenderer {
     public void renderClouds(MatrixStack matrices, Matrix4f model, float tickDelta, double cameraX, double cameraY, double cameraZ, CallbackInfo ci) {
         FabulousCloudsConfig config = FabulousClouds.getConfig();
         if (FabulousClouds.getConfig().noise_clouds) {
-            TextureManager textureManager = MinecraftClient.getInstance().getTextureManager();
-            registerClouds(textureManager);
+            registerClouds(MinecraftClient.getInstance().getTextureManager());
         }
 
         if (world.getRegistryKey() == World.OVERWORLD) {

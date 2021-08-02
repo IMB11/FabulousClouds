@@ -17,6 +17,7 @@ public class FabulousCloudsConfig {
             new CloudLayer(64, 1.25f, -1.0f)
     };
     public boolean noise_clouds = true;
+    public boolean debug_noise_clouds = false;
 
     public static FabulousCloudsConfig load() throws IOException {
         Path configFile = FabricLoader.getInstance().getConfigDir().resolve("fabulous-clouds.json");
