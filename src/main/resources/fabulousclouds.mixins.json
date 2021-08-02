@@ -7,7 +7,6 @@
   ],
   "client": [
     "MixinClientWorld",
-    "MixinDebugHud",
     "MixinWorldRenderer"
   ],
   "injectors": {
