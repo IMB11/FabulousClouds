@@ -25,9 +25,9 @@ public class MixinClientWorld {
             float[] fogColor = RenderSystem.getShaderFogColor();
 
             double[] tint = new double[3];
-            tint[0] = (fogColor[0] + cloudColor.x) / 2;
-            tint[1] = (fogColor[1] + cloudColor.y) / 2;
-            tint[2] = (fogColor[2] + cloudColor.z) / 2;
+            tint[0] = ((fogColor[0] * config.vibrance_intensity) + cloudColor.x) / 2;
+            tint[1] = ((fogColor[1] * config.vibrance_intensity) + cloudColor.y) / 2;
+            tint[2] = ((fogColor[2] * config.vibrance_intensity) + cloudColor.z) / 2;
 
             cir.setReturnValue(new Vec3d(tint[0], tint[1], tint[2]));
         }
