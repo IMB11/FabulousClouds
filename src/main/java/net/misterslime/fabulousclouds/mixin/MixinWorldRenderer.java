@@ -19,6 +19,7 @@ import net.minecraft.world.World;
 import net.misterslime.fabulousclouds.FabulousClouds;
 import net.misterslime.fabulousclouds.NoiseCloudHandler;
 import net.misterslime.fabulousclouds.config.FabulousCloudsConfig;
+import net.misterslime.fabulousclouds.util.CloudTexture;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -29,6 +30,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Iterator;
 import java.util.Random;
 
 @Mixin(WorldRenderer.class)
@@ -75,8 +77,6 @@ public final class MixinWorldRenderer {
     @Redirect(method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Matrix4f;FDDD)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderTexture(ILnet/minecraft/util/Identifier;)V"))
     private void bindFabulousClouds(int i, Identifier id) {
         if (FabulousClouds.getConfig().noise_clouds) {
-            TextureManager textureManager = MinecraftClient.getInstance().getTextureManager();
-            registerCloudsNoise(textureManager);
             NoiseCloudHandler.update();
 
             RenderSystem._setShaderTexture(i, id);
@@ -86,62 +86,50 @@ public final class MixinWorldRenderer {
     @Inject(method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Matrix4f;FDDD)V", at = @At("HEAD"), cancellable = true)
     public void renderClouds(MatrixStack matrices, Matrix4f model, float tickDelta, double cameraX, double cameraY, double cameraZ, CallbackInfo ci) {
         FabulousCloudsConfig config = FabulousClouds.getConfig();
+        if (FabulousClouds.getConfig().noise_clouds) {
+            TextureManager textureManager = MinecraftClient.getInstance().getTextureManager();
+            registerClouds(textureManager);
+        }
 
         if (world.getRegistryKey() == World.OVERWORLD) {
             SkyProperties properties = this.world.getSkyProperties();
             float cloudHeight = properties.getCloudsHeight();
             if (!Float.isNaN(cloudHeight)) {
+                int i = 0;
                 for(FabulousCloudsConfig.CloudLayer cloudLayer : config.cloud_layers) {
-                    renderCloudLayer(matrices, model, tickDelta, cameraX, cameraY, cameraZ, cloudHeight, cloudLayer.offset, cloudLayer.scale, cloudLayer.speed);
+                    renderCloudLayer(matrices, model, tickDelta, cameraX, cameraY, cameraZ, cloudHeight, cloudLayer.offset, cloudLayer.scale, cloudLayer.speed, NoiseCloudHandler.cloudTextures.get(i).identifier);
+                    i++;
                 }
             }
 
-            if (!config.enable_default_cloud_layer) {
-                ci.cancel();
+            if (config.enable_default_cloud_layer) {
+                renderCloudLayer(matrices, model, tickDelta, cameraX, cameraY, cameraZ, cloudHeight, 0, 1, 1, NoiseCloudHandler.cloudTextures.get(NoiseCloudHandler.cloudTextures.size() - 1).identifier);
             }
+
+            ci.cancel();
         }
     }
-  
-    private void registerCloudsNoise(TextureManager textureManager) {
+
+    private void registerClouds(TextureManager textureManager) {
         if (!this.initializedClouds) {
-            NativeImage image = new NativeImage(256, 256, false);
-
+            FabulousCloudsConfig config = FabulousClouds.getConfig();
             Random random = new Random();
-            NoiseCloudHandler.initNoise(random);
 
-            double cloudiness = random.nextDouble();
+            NoiseCloudHandler.initCloudTextures(CLOUDS);
 
-            for (int x = 0; x < 256; x++) {
-                for (int z = 0; z < 256; z++) {
-                    if (NoiseCloudHandler.noise.sample(x / 16.0, 0, z / 16.0) * 2.5 < cloudiness || image.getPixelColor(x, z) != 0) {
-                        image.setPixelColor(x, z, (int) (NoiseCloudHandler.noise.sample(x / 16.0, 0, z / 16.0) * 2.5));
-                    }
-                }
+            for(CloudTexture cloudTexture : NoiseCloudHandler.cloudTextures) {
+                cloudTexture.initNoise(random);
+
+                NativeImageBackedTexture texture = cloudTexture.getNativeImage(cloudTexture.noise);
+                textureManager.registerTexture(cloudTexture.identifier, texture);
+                cloudTexture.setTexture(texture);
             }
 
-            /*int count = random.nextInt(2000) + 2000;
-
-            for (int i = 0; i < count; i++) {
-                int x = random.nextInt(256);
-                int z = random.nextInt(256);
-
-                image.setPixelColor(x, z, (int) (NoiseCloudHandler.noise.sample(x / 16.0, 0, z / 16.0) * 2.5));
-            }
-
-            count /= 4;
-
-            for (int i = 0; i < count; i++) {
-                image.setPixelColor(random.nextInt(256), random.nextInt(256), 0);
-            }*/
-
-            NativeImageBackedTexture texture = new NativeImageBackedTexture(image);
-            textureManager.registerTexture(CLOUDS, texture);
-            NoiseCloudHandler.setTexture(texture);
             this.initializedClouds = true;
         }
     }
 
-    private void renderCloudLayer(MatrixStack matrices, Matrix4f model, float tickDelta, double cameraX, double cameraY, double cameraZ, float cloudHeight, float cloudOffset, float cloudScale, float speedMod) {
+    private void renderCloudLayer(MatrixStack matrices, Matrix4f model, float tickDelta, double cameraX, double cameraY, double cameraZ, float cloudHeight, float cloudOffset, float cloudScale, float speedMod, Identifier identifier) {
         RenderSystem.disableCull();
         RenderSystem.enableBlend();
         RenderSystem.enableDepthTest();
@@ -182,7 +170,7 @@ public final class MixinWorldRenderer {
         }
 
         RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
-        RenderSystem.setShaderTexture(0, CLOUDS);
+        RenderSystem.setShaderTexture(0, identifier);
         BackgroundRenderer.setFogBlack();
         matrices.push();
         matrices.scale(12.0F, 1.0F, 12.0F);
