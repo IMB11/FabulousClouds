@@ -25,6 +25,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Group;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -72,8 +73,19 @@ public final class MixinWorldRenderer {
         throw new NullPointerException("Null cannot be cast to non-null type.");
     }
 
-    @Redirect(method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Matrix4f;FDDD)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderTexture(ILnet/minecraft/util/Identifier;)V"))
-    private void bindFabulousClouds(int i, Identifier id) {
+    @Group(name = "bindFabulousClouds")
+    @Redirect(method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Matrix4f;FDDD)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderTexture(ILnet/minecraft/util/Identifier;)V", remap = false))
+    private void bindFabulousCloudsDev(int i, Identifier id) {
+        if (FabulousClouds.getConfig().noise_clouds) {
+            NoiseCloudHandler.update();
+
+            RenderSystem._setShaderTexture(i, id);
+        }
+    }
+
+    @Group(name = "bindFabulousClouds")
+    @Redirect(method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Matrix4f;FDDD)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderTexture(ILnet/minecraft/class_2960;)V",  remap = false))
+    private void bindFabulousCloudsProd(int i, Identifier id) {
         if (FabulousClouds.getConfig().noise_clouds) {
             NoiseCloudHandler.update();
 
