@@ -15,8 +15,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ClientWorld.class)
 public class MixinClientWorld {
 
-
-
     @Inject(method = "getCloudsColor(F)Lnet/minecraft/util/math/Vec3d;", at = @At("RETURN"), cancellable = true)
     private void setCloudColor(CallbackInfoReturnable<Vec3d> cir) {
         Vec3d cloudColor = cir.getReturnValue();

@@ -105,13 +105,30 @@ public final class MixinWorldRenderer {
             Random random = new Random();
             NoiseCloudHandler.initNoise(random);
 
+            double cloudiness = random.nextDouble();
+
             for (int x = 0; x < 256; x++) {
                 for (int z = 0; z < 256; z++) {
-                    if (NoiseCloudHandler.noise.sample(x / 16.0, 0, z / 16.0) * (2 + random.nextDouble()) < random.nextDouble() || image.getPixelColor(x, z) != 0) {
+                    if (NoiseCloudHandler.noise.sample(x / 16.0, 0, z / 16.0) * 2.5 < cloudiness || image.getPixelColor(x, z) != 0) {
                         image.setPixelColor(x, z, (int) (NoiseCloudHandler.noise.sample(x / 16.0, 0, z / 16.0) * 2.5));
                     }
                 }
             }
+
+            /*int count = random.nextInt(2000) + 2000;
+
+            for (int i = 0; i < count; i++) {
+                int x = random.nextInt(256);
+                int z = random.nextInt(256);
+
+                image.setPixelColor(x, z, (int) (NoiseCloudHandler.noise.sample(x / 16.0, 0, z / 16.0) * 2.5));
+            }
+
+            count /= 4;
+
+            for (int i = 0; i < count; i++) {
+                image.setPixelColor(random.nextInt(256), random.nextInt(256), 0);
+            }*/
 
             NativeImageBackedTexture texture = new NativeImageBackedTexture(image);
             textureManager.registerTexture(CLOUDS, texture);
