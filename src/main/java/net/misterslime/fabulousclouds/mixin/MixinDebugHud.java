@@ -7,6 +7,7 @@ import net.minecraft.client.gui.hud.DebugHud;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import net.misterslime.fabulousclouds.FabulousClouds;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -25,7 +26,7 @@ public class MixinDebugHud {
 
     @Inject(method = "render", at = @At("TAIL"))
     private void renderCloudTex(MatrixStack matrices, CallbackInfo ci) {
-        if (!this.client.options.debugProfilerEnabled) {
+        if (!this.client.options.debugProfilerEnabled && FabulousClouds.getConfig().debug_cloud_texture) {
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, CLOUDS);
             DrawableHelper.drawTexture(matrices, this.client.getWindow().getScaledWidth() - 128, this.client.getWindow().getScaledHeight() - 128, 0.0F, 0.0F, 128, 128, 128, 128);

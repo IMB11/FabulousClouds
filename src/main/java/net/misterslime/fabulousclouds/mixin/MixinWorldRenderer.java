@@ -15,9 +15,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.noise.SimplexNoiseSampler;
 import net.minecraft.world.World;
-import net.minecraft.world.gen.SimpleRandom;
 import net.misterslime.fabulousclouds.FabulousClouds;
 import net.misterslime.fabulousclouds.NoiseCloudHandler;
 import net.misterslime.fabulousclouds.config.FabulousCloudsConfig;
@@ -76,11 +74,13 @@ public final class MixinWorldRenderer {
 
     @Redirect(method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Matrix4f;FDDD)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderTexture(ILnet/minecraft/util/Identifier;)V"))
     private void bindFabulousClouds(int i, Identifier id) {
-        TextureManager textureManager = MinecraftClient.getInstance().getTextureManager();
-        registerCloudsNoise(textureManager);
-        NoiseCloudHandler.update();
+        if (FabulousClouds.getConfig().noise_clouds) {
+            TextureManager textureManager = MinecraftClient.getInstance().getTextureManager();
+            registerCloudsNoise(textureManager);
+            NoiseCloudHandler.update();
 
-        RenderSystem._setShaderTexture(i, id);
+            RenderSystem._setShaderTexture(i, id);
+        }
     }
 
     @Inject(method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Matrix4f;FDDD)V", at = @At("HEAD"), cancellable = true)
@@ -107,7 +107,7 @@ public final class MixinWorldRenderer {
 
             for (int x = 0; x < 256; x++) {
                 for (int z = 0; z < 256; z++) {
-                    if (NoiseCloudHandler.noise.sample(x / 16.0, 0, z / 16.0) * 2.5 < random.nextDouble()) {
+                    if (NoiseCloudHandler.noise.sample(x / 16.0, 0, z / 16.0) * (2 + random.nextDouble()) < random.nextDouble() || image.getPixelColor(x, z) != 0) {
                         image.setPixelColor(x, z, (int) (NoiseCloudHandler.noise.sample(x / 16.0, 0, z / 16.0) * 2.5));
                     }
                 }
