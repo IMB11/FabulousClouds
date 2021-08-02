@@ -4,20 +4,29 @@ import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
+import net.minecraft.client.texture.TextureManager;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.math.noise.PerlinNoiseSampler;
+import net.minecraft.util.math.noise.SimplexNoiseSampler;
+import net.minecraft.world.Heightmap;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldView;
+import net.minecraft.world.gen.SimpleRandom;
+import net.misterslime.fabulousclouds.mixin.MixinWorldRenderer;
 
 import java.nio.file.Watchable;
 import java.util.Random;
 
 public final class NoiseCloudHandler {
 
+    public static SimplexNoiseSampler noise;
+    public static NativeImageBackedTexture cloudsTexture;
+
     private static final int COLOR = 255 << 24 | 255 << 16 | 255 << 8 | 255;
 
     private static long cloudIdx = -1;
     private static long timeIdx = -1;
-    private static NativeImageBackedTexture cloudsTexture;
     private static long lastTime = -1;
     private static int cloudTexCount = 0;
     private static long cloudTexTimeIdx = -1;
@@ -49,31 +58,17 @@ public final class NoiseCloudHandler {
 
     public static void updateImage(long time) {
         Random random = new Random(time);
-        NativeImage texture = cloudsTexture.getImage();
 
-        if (MinecraftClient.getInstance().world.isRaining()) {
-            int count = random.nextInt(4000) + 4000;
+        int count = random.nextInt(2000) + 2000;
 
-            for (int i = 0; i < count; i++) {
-                texture.setPixelColor(random.nextInt(256), random.nextInt(256), COLOR);
-            }
+        for (int i = 0; i < count; i++) {
+            int x = random.nextInt(256);
+            int z = random.nextInt(256);
 
-            count = random.nextInt(500) + 500;
-
-            for (int i = 0; i < count; i++) {
-                texture.setPixelColor(random.nextInt(256), random.nextInt(256), 0);
-            }
-        } else {
-            int count = random.nextInt(4000) + 4000;
-
-            for (int i = 0; i < count; i++) {
-                texture.setPixelColor(random.nextInt(256), random.nextInt(256), 0);
-            }
-
-            count = random.nextInt(500) + 500;
-
-            for (int i = 0; i < count; i++) {
-                texture.setPixelColor(random.nextInt(256), random.nextInt(256), COLOR);
+            if (noise.sample(x / 16.0, 0, z / 16.0) * 2.5 < random.nextDouble()) {
+                cloudsTexture.getImage().setPixelColor(random.nextInt(256), random.nextInt(256), COLOR);
+            } else {
+                cloudsTexture.getImage().setPixelColor(random.nextInt(256), random.nextInt(256), 0);
             }
         }
 
@@ -105,5 +100,9 @@ public final class NoiseCloudHandler {
         }
 
         cloudTexCount = nonEmptyPixels;
+    }
+
+    public static void initNoise(Random random) {
+        noise = new SimplexNoiseSampler(new SimpleRandom(random.nextLong()));
     }
 }

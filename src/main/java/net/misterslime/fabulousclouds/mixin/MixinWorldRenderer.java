@@ -103,12 +103,12 @@ public final class MixinWorldRenderer {
             NativeImage image = new NativeImage(256, 256, false);
 
             Random random = new Random();
-            SimplexNoiseSampler noise = new SimplexNoiseSampler(new SimpleRandom(random.nextLong()));
+            NoiseCloudHandler.initNoise(random);
 
             for (int x = 0; x < 256; x++) {
                 for (int z = 0; z < 256; z++) {
-                    if (noise.sample(x / 16.0, 0, z / 16.0) * 2.5 < random.nextDouble()) {
-                        image.setPixelColor(x, z, (int) (noise.sample(x / 16.0, 0, z / 16.0) * 2.5));
+                    if (NoiseCloudHandler.noise.sample(x / 16.0, 0, z / 16.0) * 2.5 < random.nextDouble()) {
+                        image.setPixelColor(x, z, (int) (NoiseCloudHandler.noise.sample(x / 16.0, 0, z / 16.0) * 2.5));
                     }
                 }
             }
@@ -165,7 +165,6 @@ public final class MixinWorldRenderer {
 
             RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
             RenderSystem.setShaderTexture(0, CLOUDS);
-
             BackgroundRenderer.setFogBlack();
             matrices.push();
             matrices.scale(12.0F, 1.0F, 12.0F);
