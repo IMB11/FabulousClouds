@@ -1,16 +1,10 @@
 package net.misterslime.fabulousclouds;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.texture.NativeImage;
-import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.noise.SimplexNoiseSampler;
-import net.minecraft.world.gen.SimpleRandom;
 import net.misterslime.fabulousclouds.config.FabulousCloudsConfig;
 import net.misterslime.fabulousclouds.util.CloudTexture;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;

@@ -3,14 +3,10 @@ package net.misterslime.fabulousclouds.config;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.noise.SimplexNoiseSampler;
-import net.misterslime.fabulousclouds.util.CloudTexture;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Random;
 
 public class FabulousCloudsConfig {
 
