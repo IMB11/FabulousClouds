@@ -30,7 +30,7 @@ public class MixinDebugHud {
     private void renderCloudTex(MatrixStack matrices, CallbackInfo ci) {
         if (!this.client.options.debugProfilerEnabled && FabulousClouds.getConfig().debug_cloud_texture) {
             int color = 255 << 24 | 255 << 16 | 255 << 8 | 255;
-            DrawableHelper.drawStringWithShadow(matrices, this.client.textRenderer, "Fading Pixels: " + NoiseCloudHandler.pixels.size(), this.client.getWindow().getScaledWidth() - 128, this.client.getWindow().getScaledHeight() - 136, color);
+            DrawableHelper.drawStringWithShadow(matrices, this.client.textRenderer, "Fading Pixels: " + NoiseCloudHandler.pixels.size(), this.client.getWindow().getScaledWidth() - 128, this.client.getWindow().getScaledHeight() - 140, color);
 
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, CLOUDS);

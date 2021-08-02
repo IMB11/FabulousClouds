@@ -61,7 +61,6 @@ public final class NoiseCloudHandler {
             int z = random.nextInt(256);
 
             if (noise.sample(x / 16.0, 0, z / 16.0) * 2.5 < random.nextDouble() && cloudsTexture.getImage().getPixelColor(x, z) == 0 && !updatingPixel(x, z)) {
-                //cloudsTexture.getImage().setPixelColor(x, z, (int) (noise.sample(x / 16.0, 0, z / 16.0) * 2.5));
                 pixels.add(new PixelCoordinate(x, z, false));
             }
         }
@@ -72,7 +71,6 @@ public final class NoiseCloudHandler {
             int x = random.nextInt(256);
             int z = random.nextInt(256);
 
-            //cloudsTexture.getImage().setPixelColor(random.nextInt(256), random.nextInt(256), 0);
             if (cloudsTexture.getImage().getPixelColor(x, z) != 0 && !updatingPixel(x, z)) {
                 pixels.add(new PixelCoordinate(x, z, true));
             }
@@ -102,22 +100,12 @@ public final class NoiseCloudHandler {
 
     public static boolean fadePixel(NativeImage image, int x, int z, boolean fading) {
         int color = image.getPixelColor(x, z);
-
         int alpha = (color >> 24) & 0xFF;
 
-        /*if (alpha == 0) {
-            image.setPixelColor(x, z, 0);
-            return false;
-        }*/
-
-        if (fading) {
-            alpha -= 5;
-        } else {
-            alpha += 5;
-        }
+        if (fading) alpha -= 5;
+        else alpha += 5;
 
         int newColor = alpha << 24 | 255 << 16 | 255 << 8 | 255;
-
         image.setPixelColor(x, z, newColor);
 
         if (alpha >= 255 || alpha <= 0) {
