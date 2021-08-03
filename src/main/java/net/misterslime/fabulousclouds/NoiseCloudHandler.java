@@ -3,7 +3,7 @@ package net.misterslime.fabulousclouds;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 import net.misterslime.fabulousclouds.config.FabulousCloudsConfig;
-import net.misterslime.fabulousclouds.util.CloudTexture;
+import net.misterslime.fabulousclouds.clouds.CloudTexture;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -45,18 +45,6 @@ public final class NoiseCloudHandler {
 
         if (FabulousClouds.getConfig().enable_default_cloud_layer) {
             cloudTextures.add(new CloudTexture(defaultCloud));
-        }
-    }
-
-    public static class PixelCoordinate {
-        public int posX;
-        public int posZ;
-        public boolean fading;
-
-        public PixelCoordinate(int posX, int posZ, boolean fading) {
-            this.posX = posX;
-            this.posZ = posZ;
-            this.fading = fading;
         }
     }
 }

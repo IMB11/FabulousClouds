@@ -9,7 +9,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.misterslime.fabulousclouds.FabulousClouds;
 import net.misterslime.fabulousclouds.NoiseCloudHandler;
-import net.misterslime.fabulousclouds.util.CloudTexture;
+import net.misterslime.fabulousclouds.clouds.CloudTexture;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

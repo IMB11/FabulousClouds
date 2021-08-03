@@ -13,21 +13,20 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Matrix4f;
+import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.misterslime.fabulousclouds.FabulousClouds;
 import net.misterslime.fabulousclouds.NoiseCloudHandler;
 import net.misterslime.fabulousclouds.config.FabulousCloudsConfig;
-import net.misterslime.fabulousclouds.util.CloudTexture;
+import net.misterslime.fabulousclouds.clouds.CloudTexture;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Group;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Random;
@@ -83,18 +82,22 @@ public final class MixinWorldRenderer {
         }
 
         if (world.getRegistryKey() == World.OVERWORLD) {
+            Random random = new Random();
+
             SkyProperties properties = this.world.getSkyProperties();
             float cloudHeight = properties.getCloudsHeight();
             if (!Float.isNaN(cloudHeight)) {
                 int i = 0;
                 for(FabulousCloudsConfig.CloudLayer cloudLayer : config.cloud_layers) {
-                    renderCloudLayer(matrices, model, tickDelta, cameraX, cameraY, cameraZ, cloudHeight, cloudLayer.offset, cloudLayer.scale, cloudLayer.speed, NoiseCloudHandler.cloudTextures.get(i).identifier);
+                    CloudTexture cloudTexture = NoiseCloudHandler.cloudTextures.get(i);
+                    renderCloudLayer(matrices, model, tickDelta, cameraX, cameraY, cameraZ, cloudHeight, cloudLayer.offset, cloudLayer.scale, cloudLayer.speed, cloudTexture.identifier);
                     i++;
                 }
             }
 
             if (config.enable_default_cloud_layer) {
-                renderCloudLayer(matrices, model, tickDelta, cameraX, cameraY, cameraZ, cloudHeight, 0, 1, 1, NoiseCloudHandler.cloudTextures.get(NoiseCloudHandler.cloudTextures.size() - 1).identifier);
+                CloudTexture cloudTexture = NoiseCloudHandler.cloudTextures.get(NoiseCloudHandler.cloudTextures.size() - 1);
+                renderCloudLayer(matrices, model, tickDelta, cameraX, cameraY, cameraZ, cloudHeight, 0, 1, 1, cloudTexture.identifier);
             }
 
             ci.cancel();
