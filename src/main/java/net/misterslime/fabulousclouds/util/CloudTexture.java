@@ -29,8 +29,6 @@ public class CloudTexture {
 
         int count = random.nextInt(1000) + 1000;
 
-        int color = 255 << 24 | 255 << 16 | 255 << 8 | 255;
-
         for (int i = 0; i < count; i++) {
             int x = random.nextInt(256);
             int z = random.nextInt(256);

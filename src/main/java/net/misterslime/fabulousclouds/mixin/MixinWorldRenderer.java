@@ -73,33 +73,13 @@ public final class MixinWorldRenderer {
         throw new NullPointerException("Null cannot be cast to non-null type.");
     }
 
-    @Group(name = "bindFabulousClouds")
-    @Redirect(method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Matrix4f;FDDD)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderTexture(ILnet/minecraft/util/Identifier;)V", remap = false))
-    private void bindFabulousCloudsDev(int i, Identifier id) {
-        if (FabulousClouds.getConfig().noise_clouds) {
-            registerClouds(MinecraftClient.getInstance().getTextureManager());
-            NoiseCloudHandler.update();
-
-            RenderSystem._setShaderTexture(i, id);
-        }
-    }
-
-    @Group(name = "bindFabulousClouds")
-    @Redirect(method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Matrix4f;FDDD)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderTexture(ILnet/minecraft/class_2960;)V",  remap = false))
-    private void bindFabulousCloudsProd(int i, Identifier id) {
-        if (FabulousClouds.getConfig().noise_clouds) {
-            registerClouds(MinecraftClient.getInstance().getTextureManager());
-            NoiseCloudHandler.update();
-
-            RenderSystem._setShaderTexture(i, id);
-        }
-    }
-
     @Inject(method = "renderClouds(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Matrix4f;FDDD)V", at = @At("HEAD"), cancellable = true)
     public void renderClouds(MatrixStack matrices, Matrix4f model, float tickDelta, double cameraX, double cameraY, double cameraZ, CallbackInfo ci) {
         FabulousCloudsConfig config = FabulousClouds.getConfig();
         if (FabulousClouds.getConfig().noise_clouds) {
-            registerClouds(MinecraftClient.getInstance().getTextureManager());
+            TextureManager textureManager = MinecraftClient.getInstance().getTextureManager();
+            registerClouds(textureManager);
+            NoiseCloudHandler.update();
         }
 
         if (world.getRegistryKey() == World.OVERWORLD) {
@@ -123,7 +103,6 @@ public final class MixinWorldRenderer {
 
     private void registerClouds(TextureManager textureManager) {
         if (!this.initializedClouds) {
-            FabulousCloudsConfig config = FabulousClouds.getConfig();
             Random random = new Random();
 
             NoiseCloudHandler.initCloudTextures(CLOUDS);

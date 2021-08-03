@@ -12,22 +12,14 @@ import java.util.Random;
 public final class NoiseCloudHandler {
 
     public static List<CloudTexture> cloudTextures = new LinkedList<CloudTexture>() {};
-
-    private static long cloudIdx = -1;
+    
     private static long timeIdx = -1;
     private static long lastTime = -1;
 
     public static void update() {
         long time = MinecraftClient.getInstance().world.getTime();
-        FabulousCloudsConfig config = FabulousClouds.getConfig();
         if (time > lastTime) {
             lastTime = time;
-
-            long idx = time / 12000;
-
-            if (idx > cloudIdx) {
-                cloudIdx = idx;
-            }
 
             long update = time / 600;
 
