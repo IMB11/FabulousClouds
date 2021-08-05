@@ -3,7 +3,6 @@ package net.misterslime.fabulousclouds.clouds;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.noise.SimplexNoiseSampler;
 import net.minecraft.world.gen.SimpleRandom;
 import net.misterslime.fabulousclouds.util.EnumUtil;

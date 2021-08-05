@@ -13,6 +13,7 @@ public final class NoiseCloudHandler {
 
     public static List<CloudTexture> cloudTextures = new LinkedList<CloudTexture>() {};
 
+    private static long cloudIdx = -1;
     private static long timeIdx = -1;
     private static long lastTime = -1;
 
@@ -21,9 +22,9 @@ public final class NoiseCloudHandler {
         long time = client.world.getTime();
         if (time > lastTime) {
             lastTime = time;
+            updateSkyCover(time);
 
             long update = time / 600;
-
             if (update > timeIdx) {
                 timeIdx = update;
                 for (CloudTexture cloudTexture : cloudTextures) {
@@ -33,6 +34,19 @@ public final class NoiseCloudHandler {
 
             for (CloudTexture cloudTexture : cloudTextures) {
                 cloudTexture.updatePixels();
+            }
+        }
+    }
+
+    public static void updateSkyCover(long time) {
+        long idx = time / 12000;
+
+        if (idx > cloudIdx) {
+            cloudIdx = idx;
+            Random random = new Random();
+
+            for (CloudTexture cloudTexture : cloudTextures) {
+                cloudTexture.randomizeSkyCover(random);
             }
         }
     }
