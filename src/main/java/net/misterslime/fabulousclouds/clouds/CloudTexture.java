@@ -25,16 +25,19 @@ public class CloudTexture {
     private SkyCoverTypes skyCover;
 
     public CloudTexture(Identifier identifier) {
+        Random random = new Random();
+
         this.identifier = identifier;
-        this.skyCover = EnumUtil.randomEnum(SkyCoverTypes.class);
+        randomizeSkyCover(random);
     }
 
     public void updateImage(long time) {
         Random random = new Random(time);
 
         switch (skyCover) {
-            case CLEAR, NORMAL -> SkyCoverGenerators.normalSkyUpdate(random, noise, cloudsTexture.getImage(), pixels, cloudiness);
-            case CLOUDY        -> SkyCoverGenerators.cloudySkyUpdate(random, noise, cloudsTexture.getImage(), pixels, cloudiness);
+            case CLEAR  -> SkyCoverGenerators.clearSkyUpdate(random, noise, cloudsTexture.getImage(), pixels, cloudiness);
+            case NORMAL -> SkyCoverGenerators.normalSkyUpdate(random, noise, cloudsTexture.getImage(), pixels, cloudiness);
+            case CLOUDY -> SkyCoverGenerators.cloudySkyUpdate(random, noise, cloudsTexture.getImage(), pixels, cloudiness);
         }
     }
 
@@ -86,12 +89,17 @@ public class CloudTexture {
         cloudiness = random.nextDouble();
 
         switch (skyCover) {
-            case CLEAR    -> SkyCoverGenerators.clearSkyGenerator(noise, image, cloudiness);
-            case NORMAL   -> SkyCoverGenerators.normalSkyGenerator(noise, image, cloudiness);
-            case CLOUDY   -> SkyCoverGenerators.cloudySkyGenerator(noise, image, cloudiness);
+            case CLEAR  -> SkyCoverGenerators.clearSkyGenerator(noise, image, cloudiness);
+            case NORMAL -> SkyCoverGenerators.normalSkyGenerator(noise, image, cloudiness);
+            case CLOUDY -> SkyCoverGenerators.cloudySkyGenerator(noise, image, cloudiness);
         }
 
         return new NativeImageBackedTexture(image);
+    }
+
+    public void randomizeSkyCover(Random random) {
+        this.skyCover = EnumUtil.randomEnum(SkyCoverTypes.class);
+        this.cloudiness = random.nextDouble();
     }
 
     public static class PixelCoordinate {

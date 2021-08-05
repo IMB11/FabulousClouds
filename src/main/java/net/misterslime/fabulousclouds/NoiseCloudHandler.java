@@ -12,12 +12,13 @@ import java.util.Random;
 public final class NoiseCloudHandler {
 
     public static List<CloudTexture> cloudTextures = new LinkedList<CloudTexture>() {};
-    
+
     private static long timeIdx = -1;
     private static long lastTime = -1;
 
     public static void update() {
-        long time = MinecraftClient.getInstance().world.getTime();
+        MinecraftClient client = MinecraftClient.getInstance();
+        long time = client.world.getTime();
         if (time > lastTime) {
             lastTime = time;
 
@@ -30,7 +31,7 @@ public final class NoiseCloudHandler {
                 }
             }
 
-            for (CloudTexture cloudTexture  : cloudTextures) {
+            for (CloudTexture cloudTexture : cloudTextures) {
                 cloudTexture.updatePixels();
             }
         }
