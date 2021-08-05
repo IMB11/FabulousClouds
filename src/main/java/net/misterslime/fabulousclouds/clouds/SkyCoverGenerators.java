@@ -91,7 +91,7 @@ public class SkyCoverGenerators {
         }
     }
 
-    public static void overcastSkyGenerator(SimplexNoiseSampler noiseSampler, NativeImage image, double cloudiness) {
+    /*public static void overcastSkyGenerator(SimplexNoiseSampler noiseSampler, NativeImage image, double cloudiness) {
         int color = NativeImage.getAbgrColor(255, 255, 255, 255);
 
         for (int x = 0; x < 256; x++) {
@@ -108,7 +108,7 @@ public class SkyCoverGenerators {
             int x = random.nextInt(256);
             int z = random.nextInt(256);
 
-            if (noiseSampler.sample(x / 16.0, 0, z / 16.0) * 2.5 < cloudiness && image.getPixelColor(x, z) == 0 && !updatingPixel(x, z, pixels)) {
+            if (noiseSampler.sample(x / 16.0, 0, z / 16.0) * 2.5 < cloudiness && image.getPixelColor(x, z) != 0 && !updatingPixel(x, z, pixels)) {
                 pixels.add(new CloudTexture.PixelCoordinate(x, z, true));
             }
         }
@@ -119,11 +119,11 @@ public class SkyCoverGenerators {
             int x = random.nextInt(256);
             int z = random.nextInt(256);
 
-            if (image.getPixelColor(x, z) != 0 && !updatingPixel(x, z, pixels)) {
+            if (image.getPixelColor(x, z) == 0 && !updatingPixel(x, z, pixels)) {
                 pixels.add(new CloudTexture.PixelCoordinate(x, z, false));
             }
         }
-    }
+    }*/
 
     public static boolean updatingPixel(int x, int z, List<CloudTexture.PixelCoordinate> pixels) {
         for (CloudTexture.PixelCoordinate pixel : pixels) {

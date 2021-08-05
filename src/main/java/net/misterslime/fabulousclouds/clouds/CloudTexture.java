@@ -35,7 +35,6 @@ public class CloudTexture {
         switch (skyCover) {
             case CLEAR, NORMAL -> SkyCoverGenerators.normalSkyUpdate(random, noise, cloudsTexture.getImage(), pixels, cloudiness);
             case CLOUDY        -> SkyCoverGenerators.cloudySkyUpdate(random, noise, cloudsTexture.getImage(), pixels, cloudiness);
-            case OVERCAST      -> SkyCoverGenerators.overcastSkyUpdate(random, noise, cloudsTexture.getImage(), pixels, cloudiness);
         }
     }
 
@@ -90,7 +89,6 @@ public class CloudTexture {
             case CLEAR    -> SkyCoverGenerators.clearSkyGenerator(noise, image, cloudiness);
             case NORMAL   -> SkyCoverGenerators.normalSkyGenerator(noise, image, cloudiness);
             case CLOUDY   -> SkyCoverGenerators.cloudySkyGenerator(noise, image, cloudiness);
-            case OVERCAST -> SkyCoverGenerators.overcastSkyGenerator(noise, image, cloudiness);
         }
 
         return new NativeImageBackedTexture(image);
@@ -109,6 +107,6 @@ public class CloudTexture {
     }
 
     public enum SkyCoverTypes {
-        NORMAL, CLOUDY, CLEAR, OVERCAST
+        NORMAL, CLOUDY, CLEAR
     }
 }
