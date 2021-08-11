@@ -7,10 +7,7 @@ import net.minecraft.util.math.noise.SimplexNoiseSampler;
 import net.minecraft.world.gen.SimpleRandom;
 import net.misterslime.fabulousclouds.util.EnumUtil;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class CloudTexture {
 
@@ -32,22 +29,16 @@ public class CloudTexture {
         Random random = new Random(time);
 
         switch (skyCover) {
-            case CLEAR  -> SkyCoverGenerators.clearSkyUpdate(random, noise, cloudsTexture.getImage(), pixels, cloudiness);
-            case NORMAL -> SkyCoverGenerators.normalSkyUpdate(random, noise, cloudsTexture.getImage(), pixels, cloudiness);
-            case CLOUDY -> SkyCoverGenerators.cloudySkyUpdate(random, noise, cloudsTexture.getImage(), pixels, cloudiness);
+            case CLEAR  -> SkyCoverGenerators.clearSkyUpdate(random, noise, this.cloudsTexture.getImage(), pixels, cloudiness);
+            case NORMAL -> SkyCoverGenerators.normalSkyUpdate(random, noise, this.cloudsTexture.getImage(), pixels, cloudiness);
+            case CLOUDY -> SkyCoverGenerators.cloudySkyUpdate(random, noise, this.cloudsTexture.getImage(), pixels, cloudiness);
         }
     }
 
     public void updatePixels() {
-        Iterator<PixelCoordinate> pixelIterator = pixels.iterator();
-        while (pixelIterator.hasNext()) {
-            PixelCoordinate pixel = pixelIterator.next();
-            if (!fadePixel(cloudsTexture.getImage(), pixel.posX, pixel.posZ, pixel.fading)) {
-                pixelIterator.remove();
-            }
-        }
+        pixels.removeIf(pixel -> !fadePixel(Objects.requireNonNull(this.cloudsTexture.getImage()), pixel.posX, pixel.posZ, pixel.fading));
 
-        cloudsTexture.upload();
+        this.cloudsTexture.upload();
     }
 
     public boolean fadePixel(NativeImage image, int x, int z, boolean fading) {
@@ -63,15 +54,11 @@ public class CloudTexture {
         if (alpha <= 0) {
             image.setPixelColor(x, z, 0);
             return false;
-        } else if (alpha >= 255) {
-            return false;
-        }
-
-        return true;
+        } else return alpha < 255;
     }
 
     public void setTexture(NativeImageBackedTexture texture) {
-        cloudsTexture = texture;
+        this.cloudsTexture = texture;
     }
 
     public void initNoise(Random random) {
