@@ -24,10 +24,8 @@ public class CloudTexture {
     private SkyCoverTypes skyCover;
 
     public CloudTexture(Identifier identifier) {
-        Random random = new Random();
-
         this.identifier = identifier;
-        randomizeSkyCover(random);
+        randomizeSkyCover();
     }
 
     public void updateImage(long time) {
@@ -77,7 +75,7 @@ public class CloudTexture {
     }
 
     public void initNoise(Random random) {
-        noise = new SimplexNoiseSampler(new SimpleRandom(random.nextLong()));
+        this.noise = new SimplexNoiseSampler(new SimpleRandom(random.nextLong()));
     }
 
     public NativeImageBackedTexture getNativeImage(SimplexNoiseSampler noise) {
@@ -85,7 +83,7 @@ public class CloudTexture {
 
         Random random = new Random();
 
-        cloudiness = random.nextDouble();
+        this.cloudiness = random.nextDouble();
 
         switch (skyCover) {
             case CLEAR  -> SkyCoverGenerators.clearSkyGenerator(noise, image, cloudiness);
@@ -96,9 +94,8 @@ public class CloudTexture {
         return new NativeImageBackedTexture(image);
     }
 
-    public void randomizeSkyCover(Random random) {
+    public void randomizeSkyCover() {
         this.skyCover = EnumUtil.randomEnum(SkyCoverTypes.class);
-        this.cloudiness = random.nextDouble();
     }
 
     public static class PixelCoordinate {

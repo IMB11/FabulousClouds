@@ -43,10 +43,9 @@ public final class NoiseCloudHandler {
 
         if (idx > cloudIdx) {
             cloudIdx = idx;
-            Random random = new Random();
 
             for (CloudTexture cloudTexture : cloudTextures) {
-                cloudTexture.randomizeSkyCover(random);
+                cloudTexture.randomizeSkyCover();
             }
         }
     }
