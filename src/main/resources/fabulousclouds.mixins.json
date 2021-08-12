@@ -6,9 +6,9 @@
   "mixins": [
   ],
   "client": [
-    "MixinClientWorld",
-    "MixinDebugHud",
-    "MixinWorldRenderer"
+    "MixinClientLevel",
+    "MixinDebugScreenOverlay",
+    "MixinLevelRenderer"
   ],
   "injectors": {
     "defaultRequire": 1

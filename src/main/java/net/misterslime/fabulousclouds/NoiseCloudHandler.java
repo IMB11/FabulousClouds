@@ -1,7 +1,7 @@
 package net.misterslime.fabulousclouds;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
 import net.misterslime.fabulousclouds.config.FabulousCloudsConfig;
 import net.misterslime.fabulousclouds.clouds.CloudTexture;
 
@@ -18,8 +18,9 @@ public final class NoiseCloudHandler {
     private static long lastTime = -1;
 
     public static void update() {
-        MinecraftClient client = MinecraftClient.getInstance();
-        long time = client.world.getTime();
+        Minecraft client = Minecraft.getInstance();
+        assert client.level != null;
+        long time = client.level.getGameTime();
         if (time > lastTime) {
             lastTime = time;
             updateSkyCover(time);
@@ -50,11 +51,11 @@ public final class NoiseCloudHandler {
         }
     }
 
-    public static void initCloudTextures(Identifier defaultCloud) {
+    public static void initCloudTextures(ResourceLocation defaultCloud) {
         for (FabulousCloudsConfig.CloudLayer cloudLayer : FabulousClouds.getConfig().cloud_layers) {
             Random random = new Random();
 
-            cloudTextures.add(new CloudTexture(new Identifier("fabulousclouds", "textures/environment/" + random.hashCode() + ".png")));
+            cloudTextures.add(new CloudTexture(new ResourceLocation("fabulousclouds", "textures/environment/" + random.hashCode() + ".png")));
         }
 
         if (FabulousClouds.getConfig().enable_default_cloud_layer) {

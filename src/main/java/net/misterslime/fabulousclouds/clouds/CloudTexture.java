@@ -1,71 +1,74 @@
 package net.misterslime.fabulousclouds.clouds;
 
-import net.minecraft.client.texture.NativeImage;
-import net.minecraft.client.texture.NativeImageBackedTexture;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.noise.SimplexNoiseSampler;
-import net.minecraft.world.gen.SimpleRandom;
+import com.mojang.blaze3d.platform.NativeImage;
+import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.levelgen.WorldgenRandom;
+import net.minecraft.world.level.levelgen.synth.SimplexNoise;
 import net.misterslime.fabulousclouds.util.EnumUtil;
 
 import java.util.*;
+import java.util.List;
 
 public class CloudTexture {
 
     public List<PixelCoordinate> pixels = new LinkedList<PixelCoordinate>() {};
 
-    public SimplexNoiseSampler noise;
-    public NativeImageBackedTexture cloudsTexture;
-    public Identifier identifier;
+    public SimplexNoise noise;
+    public DynamicTexture cloudsTexture;
+    public ResourceLocation resourceLocation;
     public double cloudiness;
 
     private SkyCoverTypes skyCover;
 
-    public CloudTexture(Identifier identifier) {
-        this.identifier = identifier;
+    public CloudTexture(ResourceLocation resourceLocation) {
+        this.resourceLocation = resourceLocation;
         randomizeSkyCover();
     }
 
     public void updateImage(long time) {
         Random random = new Random(time);
 
-        switch (skyCover) {
-            case CLEAR  -> SkyCoverGenerators.clearSkyUpdate(random, noise, this.cloudsTexture.getImage(), pixels, cloudiness);
-            case NORMAL -> SkyCoverGenerators.normalSkyUpdate(random, noise, this.cloudsTexture.getImage(), pixels, cloudiness);
-            case CLOUDY -> SkyCoverGenerators.cloudySkyUpdate(random, noise, this.cloudsTexture.getImage(), pixels, cloudiness);
+        switch (this.skyCover) {
+            case CLEAR  -> SkyCoverGenerators.clearSkyUpdate(random, this.noise, this.cloudsTexture.getPixels(), pixels, this.cloudiness);
+            case NORMAL -> SkyCoverGenerators.normalSkyUpdate(random, this.noise, this.cloudsTexture.getPixels(), pixels, this.cloudiness);
+            case CLOUDY -> SkyCoverGenerators.cloudySkyUpdate(random, this.noise, this.cloudsTexture.getPixels(), pixels, this.cloudiness);
         }
     }
 
     public void updatePixels() {
-        pixels.removeIf(pixel -> !fadePixel(Objects.requireNonNull(this.cloudsTexture.getImage()), pixel.posX, pixel.posZ, pixel.fading));
+        pixels.removeIf(pixel -> !fadePixel(Objects.requireNonNull(this.cloudsTexture.getPixels()), pixel.posX, pixel.posZ, pixel.fading));
 
         this.cloudsTexture.upload();
     }
 
     public boolean fadePixel(NativeImage image, int x, int z, boolean fading) {
-        int color = image.getPixelColor(x, z);
+        int color = image.getPixelRGBA(x, z);
         int alpha = (color >> 24) & 0xFF;
+        //int alpha = image.getLuminanceOrAlpha(x, z) + 128;
 
         if (fading) alpha -= 5;
         else alpha += 5;
 
         int newColor = alpha << 24 | 255 << 16 | 255 << 8 | 255;
-        image.setPixelColor(x, z, newColor);
+        //int newColor = NativeImage.combine(alpha, 255, 255, 255);
+        image.setPixelRGBA(x, z, newColor);
 
         if (alpha <= 0) {
-            image.setPixelColor(x, z, 0);
+            image.setPixelRGBA(x, z, 0);
             return false;
         } else return alpha < 255;
     }
 
-    public void setTexture(NativeImageBackedTexture texture) {
+    public void setTexture(DynamicTexture texture) {
         this.cloudsTexture = texture;
     }
 
     public void initNoise(Random random) {
-        this.noise = new SimplexNoiseSampler(new SimpleRandom(random.nextLong()));
+        this.noise = new SimplexNoise(new WorldgenRandom(random.nextLong()));
     }
 
-    public NativeImageBackedTexture getNativeImage(SimplexNoiseSampler noise) {
+    public DynamicTexture getNativeImage() {
         NativeImage image = new NativeImage(256, 256, false);
 
         Random random = new Random();
@@ -73,12 +76,12 @@ public class CloudTexture {
         this.cloudiness = random.nextDouble();
 
         switch (skyCover) {
-            case CLEAR  -> SkyCoverGenerators.clearSkyGenerator(noise, image, cloudiness);
-            case NORMAL -> SkyCoverGenerators.normalSkyGenerator(noise, image, cloudiness);
-            case CLOUDY -> SkyCoverGenerators.cloudySkyGenerator(noise, image, cloudiness);
+            case CLEAR  -> SkyCoverGenerators.clearSkyGenerator(this.noise, image, this.cloudiness);
+            case NORMAL -> SkyCoverGenerators.normalSkyGenerator(this.noise, image, this.cloudiness);
+            case CLOUDY -> SkyCoverGenerators.cloudySkyGenerator(this.noise, image, this.cloudiness);
         }
 
-        return new NativeImageBackedTexture(image);
+        return new DynamicTexture(image);
     }
 
     public void randomizeSkyCover() {
