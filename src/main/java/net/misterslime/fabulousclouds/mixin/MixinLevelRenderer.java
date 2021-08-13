@@ -121,10 +121,11 @@ public final class MixinLevelRenderer {
         RenderSystem.enableDepthTest();
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         RenderSystem.depthMask(true);
+        float scale = 12.0F * cloudScale;
         double speed = ((this.ticks + tickDelta) * (0.03F * speedMod));
-        double posX = (cameraX + speed) / 12.0D;
-        double posY = cloudHeight - (float) cameraY + cloudOffset;
-        double posZ = cameraZ / 12.0D + 0.33000001311302185D;
+        double posX = (cameraX + speed) / scale;
+        double posY = (cloudHeight - (float) cameraY + cloudOffset) / cloudScale;
+        double posZ = cameraZ / scale + 0.33000001311302185D;
         posX -= Math.floor(posX / 2048.0D) * 2048;
         posZ -= Math.floor(posZ / 2048.0D) * 2048;
         float adjustedX = (float) (posX - (double) Math.floor(posX));
@@ -159,8 +160,7 @@ public final class MixinLevelRenderer {
         RenderSystem.setShaderTexture(0, resourceLocation);
         FogRenderer.levelFogColor();
         poseStack.pushPose();
-        poseStack.scale(12.0F, 1.0F, 12.0F);
-        poseStack.scale(cloudScale, cloudScale, cloudScale);
+        poseStack.scale(scale, cloudScale, scale);
         poseStack.translate(-adjustedX, adjustedY, -adjustedZ);
         if (this.cloudBuffer != null) {
             int cloudMainIndex = this.prevCloudsType == CloudStatus.FANCY ? 0 : 1;
