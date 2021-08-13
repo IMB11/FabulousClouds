@@ -10,6 +10,8 @@ import java.nio.file.Path;
 
 public class FabulousCloudsConfig {
 
+    public static final FabulousCloudsConfig DEFAULT = new FabulousCloudsConfig();
+
     public boolean vibrant_clouds = true;
     public float vibrance_intensity = 1.0f;
     public boolean enable_default_cloud_layer = true;

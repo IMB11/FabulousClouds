@@ -11,12 +11,12 @@ archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
 
+modmenu_version = project.modmenu_version
+cloth_version = project.cloth_version
+
 repositories {
-	// Add repositories to retrieve artifacts from in here.
-	// You should only use this when depending on other mods because
-	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
-	// for more information about repositories.
+	maven { url "https://maven.shedaniel.me/" }
+	maven { url "https://maven.terraformersmc.com/releases" }
 }
 
 dependencies {
@@ -25,18 +25,23 @@ dependencies {
 	mappings minecraft.officialMojangMappings()
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-	// Fabric API. This is technically optional, but you probably want it anyway.
-	//modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-
-	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
-	// You may need to force-disable transitiveness on them.
+	modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
+	modImplementation("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_version}") {
+		exclude(group: "net.fabricmc.fabric-api")
+	}
 }
 
 processResources {
 	inputs.property "version", project.version
+	inputs.property "modmenu_version", project.modmenu_version
+	inputs.property "cloth_version", project.cloth_version
 
 	filesMatching("fabric.mod.json") {
-		expand "version": project.version
+		expand(
+				"version": version,
+				"cloth_version": cloth_version,
+				"modmenu_version": modmenu_version
+		)
 	}
 }
 

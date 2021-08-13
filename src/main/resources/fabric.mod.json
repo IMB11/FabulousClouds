@@ -21,6 +21,9 @@
   "entrypoints": {
     "main": [
       "net.misterslime.fabulousclouds.FabulousClouds"
+    ],
+    "modmenu": [
+      "net.misterslime.fabulousclouds.config.ConfigModMenuIntegration"
     ]
   },
   "mixins": [
@@ -31,5 +34,9 @@
     "fabricloader": ">=0.11.6",
     "minecraft": ">=1.17",
     "java": ">=16"
+  },
+  "suggests": {
+    "modmenu": "^${modmenu_version}",
+    "cloth-config2": "^${cloth_version}"
   }
 }
