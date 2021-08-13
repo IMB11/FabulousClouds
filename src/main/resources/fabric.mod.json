@@ -10,7 +10,8 @@
   ],
   "contact": {
     "homepage": "https://modrinth.com/mod/fabulousclouds",
-    "sources": "https://github.com/misterslime/fabulousclouds-fabric"
+    "sources": "https://github.com/misterslime/fabulousclouds-fabric",
+    "issues": "https://github.com/misterslime/fabulousclouds-fabric/issues"
   },
 
   "license": "CC0-1.0",
