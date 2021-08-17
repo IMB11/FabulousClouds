@@ -17,10 +17,7 @@ import net.misterslime.fabulousclouds.NoiseCloudHandler;
 import net.misterslime.fabulousclouds.config.FabulousCloudsConfig;
 import net.misterslime.fabulousclouds.clouds.CloudTexture;
 import org.jetbrains.annotations.NotNull;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -35,6 +32,7 @@ public final class MixinLevelRenderer {
     private static ResourceLocation CLOUDS_LOCATION;
     @Shadow
     private final int ticks;
+    @Mutable
     @Final
     @Shadow
     @NotNull
