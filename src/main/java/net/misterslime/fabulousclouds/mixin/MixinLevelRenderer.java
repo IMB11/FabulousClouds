@@ -2,10 +2,7 @@ package net.misterslime.fabulousclouds.mixin;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexBuffer;
+import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix4f;
 import net.minecraft.client.CloudStatus;
 import net.minecraft.client.Minecraft;
@@ -151,7 +148,7 @@ public final class MixinLevelRenderer {
             if (this.cloudBuffer != null) this.cloudBuffer.close();
 
             this.cloudBuffer = new VertexBuffer();
-            this.buildClouds(bufferBuilder, posX, posY, posZ, cloudColor);
+            this.buildCloudLayer(bufferBuilder, posX, posY, posZ, cloudScale, cloudColor);
             bufferBuilder.end();
             this.cloudBuffer.upload(bufferBuilder);
         }
@@ -183,7 +180,93 @@ public final class MixinLevelRenderer {
         RenderSystem.disableBlend();
     }
 
-    @Shadow
-    private void buildClouds(BufferBuilder builder, double x, double y, double z, Vec3 color) {
+    private void buildCloudLayer(BufferBuilder bufferBuilder, double x, double y, double z, float scale, Vec3 color) {
+        float f = 4.0f;
+        float f2 = 0.00390625f;
+        int n = 8;
+        int n2 = 4;
+        float f3 = 9.765625E-4f;
+        float f4 = (float)Math.floor(x) * 0.00390625f;
+        float f5 = (float)Math.floor(z) * 0.00390625f;
+        float f6 = (float)color.x;
+        float f7 = (float)color.y;
+        float f8 = (float)color.z;
+        float f9 = f6 * 0.9f;
+        float f10 = f7 * 0.9f;
+        float f11 = f8 * 0.9f;
+        float f12 = f6 * 0.7f;
+        float f13 = f7 * 0.7f;
+        float f14 = f8 * 0.7f;
+        float f15 = f6 * 0.8f;
+        float f16 = f7 * 0.8f;
+        float f17 = f8 * 0.8f;
+        RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
+        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
+        float f18 = (float)Math.floor(y / 4.0) * 4.0f;
+        if (this.prevCloudsType == CloudStatus.FANCY) {
+            int i2 = (int) (8 / scale) / 2;
+
+            for (int i = -i2 + 1; i <= i2; ++i) {
+                for (int j = -i2 + 1; j <= i2; ++j) {
+                    int n3;
+                    float f19 = i * 8;
+                    float f20 = j * 8;
+                    if (f18 > -5.0f) {
+                        bufferBuilder.vertex(f19 + 0.0f, f18 + 0.0f, f20 + 8.0f).uv((f19 + 0.0f) * 0.00390625f + f4, (f20 + 8.0f) * 0.00390625f + f5).color(f12, f13, f14, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
+                        bufferBuilder.vertex(f19 + 8.0f, f18 + 0.0f, f20 + 8.0f).uv((f19 + 8.0f) * 0.00390625f + f4, (f20 + 8.0f) * 0.00390625f + f5).color(f12, f13, f14, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
+                        bufferBuilder.vertex(f19 + 8.0f, f18 + 0.0f, f20 + 0.0f).uv((f19 + 8.0f) * 0.00390625f + f4, (f20 + 0.0f) * 0.00390625f + f5).color(f12, f13, f14, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
+                        bufferBuilder.vertex(f19 + 0.0f, f18 + 0.0f, f20 + 0.0f).uv((f19 + 0.0f) * 0.00390625f + f4, (f20 + 0.0f) * 0.00390625f + f5).color(f12, f13, f14, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
+                    }
+                    if (f18 <= 5.0f) {
+                        bufferBuilder.vertex(f19 + 0.0f, f18 + 4.0f - 9.765625E-4f, f20 + 8.0f).uv((f19 + 0.0f) * 0.00390625f + f4, (f20 + 8.0f) * 0.00390625f + f5).color(f6, f7, f8, 0.8f).normal(0.0f, 1.0f, 0.0f).endVertex();
+                        bufferBuilder.vertex(f19 + 8.0f, f18 + 4.0f - 9.765625E-4f, f20 + 8.0f).uv((f19 + 8.0f) * 0.00390625f + f4, (f20 + 8.0f) * 0.00390625f + f5).color(f6, f7, f8, 0.8f).normal(0.0f, 1.0f, 0.0f).endVertex();
+                        bufferBuilder.vertex(f19 + 8.0f, f18 + 4.0f - 9.765625E-4f, f20 + 0.0f).uv((f19 + 8.0f) * 0.00390625f + f4, (f20 + 0.0f) * 0.00390625f + f5).color(f6, f7, f8, 0.8f).normal(0.0f, 1.0f, 0.0f).endVertex();
+                        bufferBuilder.vertex(f19 + 0.0f, f18 + 4.0f - 9.765625E-4f, f20 + 0.0f).uv((f19 + 0.0f) * 0.00390625f + f4, (f20 + 0.0f) * 0.00390625f + f5).color(f6, f7, f8, 0.8f).normal(0.0f, 1.0f, 0.0f).endVertex();
+                    }
+                    if (i > -1) {
+                        for (n3 = 0; n3 < 8; ++n3) {
+                            bufferBuilder.vertex(f19 + (float)n3 + 0.0f, f18 + 0.0f, f20 + 8.0f).uv((f19 + (float)n3 + 0.5f) * 0.00390625f + f4, (f20 + 8.0f) * 0.00390625f + f5).color(f9, f10, f11, 0.8f).normal(-1.0f, 0.0f, 0.0f).endVertex();
+                            bufferBuilder.vertex(f19 + (float)n3 + 0.0f, f18 + 4.0f, f20 + 8.0f).uv((f19 + (float)n3 + 0.5f) * 0.00390625f + f4, (f20 + 8.0f) * 0.00390625f + f5).color(f9, f10, f11, 0.8f).normal(-1.0f, 0.0f, 0.0f).endVertex();
+                            bufferBuilder.vertex(f19 + (float)n3 + 0.0f, f18 + 4.0f, f20 + 0.0f).uv((f19 + (float)n3 + 0.5f) * 0.00390625f + f4, (f20 + 0.0f) * 0.00390625f + f5).color(f9, f10, f11, 0.8f).normal(-1.0f, 0.0f, 0.0f).endVertex();
+                            bufferBuilder.vertex(f19 + (float)n3 + 0.0f, f18 + 0.0f, f20 + 0.0f).uv((f19 + (float)n3 + 0.5f) * 0.00390625f + f4, (f20 + 0.0f) * 0.00390625f + f5).color(f9, f10, f11, 0.8f).normal(-1.0f, 0.0f, 0.0f).endVertex();
+                        }
+                    }
+                    if (i <= 1) {
+                        for (n3 = 0; n3 < 8; ++n3) {
+                            bufferBuilder.vertex(f19 + (float)n3 + 1.0f - 9.765625E-4f, f18 + 0.0f, f20 + 8.0f).uv((f19 + (float)n3 + 0.5f) * 0.00390625f + f4, (f20 + 8.0f) * 0.00390625f + f5).color(f9, f10, f11, 0.8f).normal(1.0f, 0.0f, 0.0f).endVertex();
+                            bufferBuilder.vertex(f19 + (float)n3 + 1.0f - 9.765625E-4f, f18 + 4.0f, f20 + 8.0f).uv((f19 + (float)n3 + 0.5f) * 0.00390625f + f4, (f20 + 8.0f) * 0.00390625f + f5).color(f9, f10, f11, 0.8f).normal(1.0f, 0.0f, 0.0f).endVertex();
+                            bufferBuilder.vertex(f19 + (float)n3 + 1.0f - 9.765625E-4f, f18 + 4.0f, f20 + 0.0f).uv((f19 + (float)n3 + 0.5f) * 0.00390625f + f4, (f20 + 0.0f) * 0.00390625f + f5).color(f9, f10, f11, 0.8f).normal(1.0f, 0.0f, 0.0f).endVertex();
+                            bufferBuilder.vertex(f19 + (float)n3 + 1.0f - 9.765625E-4f, f18 + 0.0f, f20 + 0.0f).uv((f19 + (float)n3 + 0.5f) * 0.00390625f + f4, (f20 + 0.0f) * 0.00390625f + f5).color(f9, f10, f11, 0.8f).normal(1.0f, 0.0f, 0.0f).endVertex();
+                        }
+                    }
+                    if (j > -1) {
+                        for (n3 = 0; n3 < 8; ++n3) {
+                            bufferBuilder.vertex(f19 + 0.0f, f18 + 4.0f, f20 + (float)n3 + 0.0f).uv((f19 + 0.0f) * 0.00390625f + f4, (f20 + (float)n3 + 0.5f) * 0.00390625f + f5).color(f15, f16, f17, 0.8f).normal(0.0f, 0.0f, -1.0f).endVertex();
+                            bufferBuilder.vertex(f19 + 8.0f, f18 + 4.0f, f20 + (float)n3 + 0.0f).uv((f19 + 8.0f) * 0.00390625f + f4, (f20 + (float)n3 + 0.5f) * 0.00390625f + f5).color(f15, f16, f17, 0.8f).normal(0.0f, 0.0f, -1.0f).endVertex();
+                            bufferBuilder.vertex(f19 + 8.0f, f18 + 0.0f, f20 + (float)n3 + 0.0f).uv((f19 + 8.0f) * 0.00390625f + f4, (f20 + (float)n3 + 0.5f) * 0.00390625f + f5).color(f15, f16, f17, 0.8f).normal(0.0f, 0.0f, -1.0f).endVertex();
+                            bufferBuilder.vertex(f19 + 0.0f, f18 + 0.0f, f20 + (float)n3 + 0.0f).uv((f19 + 0.0f) * 0.00390625f + f4, (f20 + (float)n3 + 0.5f) * 0.00390625f + f5).color(f15, f16, f17, 0.8f).normal(0.0f, 0.0f, -1.0f).endVertex();
+                        }
+                    }
+                    if (j > 1) continue;
+                    for (n3 = 0; n3 < 8; ++n3) {
+                        bufferBuilder.vertex(f19 + 0.0f, f18 + 4.0f, f20 + (float)n3 + 1.0f - 9.765625E-4f).uv((f19 + 0.0f) * 0.00390625f + f4, (f20 + (float)n3 + 0.5f) * 0.00390625f + f5).color(f15, f16, f17, 0.8f).normal(0.0f, 0.0f, 1.0f).endVertex();
+                        bufferBuilder.vertex(f19 + 8.0f, f18 + 4.0f, f20 + (float)n3 + 1.0f - 9.765625E-4f).uv((f19 + 8.0f) * 0.00390625f + f4, (f20 + (float)n3 + 0.5f) * 0.00390625f + f5).color(f15, f16, f17, 0.8f).normal(0.0f, 0.0f, 1.0f).endVertex();
+                        bufferBuilder.vertex(f19 + 8.0f, f18 + 0.0f, f20 + (float)n3 + 1.0f - 9.765625E-4f).uv((f19 + 8.0f) * 0.00390625f + f4, (f20 + (float)n3 + 0.5f) * 0.00390625f + f5).color(f15, f16, f17, 0.8f).normal(0.0f, 0.0f, 1.0f).endVertex();
+                        bufferBuilder.vertex(f19 + 0.0f, f18 + 0.0f, f20 + (float)n3 + 1.0f - 9.765625E-4f).uv((f19 + 0.0f) * 0.00390625f + f4, (f20 + (float)n3 + 0.5f) * 0.00390625f + f5).color(f15, f16, f17, 0.8f).normal(0.0f, 0.0f, 1.0f).endVertex();
+                    }
+                }
+            }
+        } else {
+            boolean bl = true;
+            int n4 = (int) (32 / scale);
+            for (int i = -n4; i < n4; i += n4) {
+                for (int j = -n4; j < n4; j += n4) {
+                    bufferBuilder.vertex(i + 0, f18, j + n4).uv((float)(i + 0) * 0.00390625f + f4, (float)(j + n4) * 0.00390625f + f5).color(f6, f7, f8, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
+                    bufferBuilder.vertex(i + n4, f18, j + n4).uv((float)(i + n4) * 0.00390625f + f4, (float)(j + n4) * 0.00390625f + f5).color(f6, f7, f8, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
+                    bufferBuilder.vertex(i + n4, f18, j + 0).uv((float)(i + n4) * 0.00390625f + f4, (float)(j + 0) * 0.00390625f + f5).color(f6, f7, f8, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
+                    bufferBuilder.vertex(i + 0, f18, j + 0).uv((float)(i + 0) * 0.00390625f + f4, (float)(j + 0) * 0.00390625f + f5).color(f6, f7, f8, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
+                }
+            }
+        }
     }
 }
