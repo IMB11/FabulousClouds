@@ -32,7 +32,6 @@ public final class MixinLevelRenderer {
     private static ResourceLocation CLOUDS_LOCATION;
     @Shadow
     private final int ticks;
-    @Mutable
     @Final
     @Shadow
     @NotNull
@@ -58,8 +57,6 @@ public final class MixinLevelRenderer {
     private boolean initializedClouds = false;
 
     public MixinLevelRenderer() {
-        minecraft = Minecraft.getInstance();
-
         throw new NullPointerException("Null cannot be cast to non-null type.");
     }
 
