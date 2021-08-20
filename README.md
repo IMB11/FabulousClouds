@@ -19,7 +19,8 @@ Fabulous Clouds has 3 major features: vibrant clouds, customizable cloud layers,
 		}
 	]
 	"noise_clouds": true,
-	"debug_noise_clouds": false
+	"debug_noise_clouds": false,
+	"offset_cloud_rendering": false
 }
 ```
 
