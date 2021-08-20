@@ -136,6 +136,7 @@ public final class MixinLevelRenderer {
             this.generateClouds = true;
         }
 
+        RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
         if (this.generateClouds) {
             this.generateClouds = false;
             Tesselator tessellator = Tesselator.getInstance();
@@ -147,8 +148,6 @@ public final class MixinLevelRenderer {
             bufferBuilder.end();
             this.cloudBuffer.upload(bufferBuilder);
         }
-
-        RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
         RenderSystem.setShaderTexture(0, resourceLocation);
         FogRenderer.levelFogColor();
         poseStack.pushPose();
@@ -175,91 +174,90 @@ public final class MixinLevelRenderer {
         RenderSystem.disableBlend();
     }
 
-    private void buildCloudLayer(BufferBuilder bufferBuilder, double x, double y, double z, float scale, Vec3 color) {
-        float f = 4.0f;
-        float f2 = 0.00390625f;
-        int n = 8;
-        int n2 = 4;
-        float f3 = 9.765625E-4f;
-        float f4 = (float)Math.floor(x) * 0.00390625f;
-        float f5 = (float)Math.floor(z) * 0.00390625f;
-        float f6 = (float)color.x;
-        float f7 = (float)color.y;
-        float f8 = (float)color.z;
-        float f9 = f6 * 0.9f;
-        float f10 = f7 * 0.9f;
-        float f11 = f8 * 0.9f;
-        float f12 = f6 * 0.7f;
-        float f13 = f7 * 0.7f;
-        float f14 = f8 * 0.7f;
-        float f15 = f6 * 0.8f;
-        float f16 = f7 * 0.8f;
-        float f17 = f8 * 0.8f;
-        RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
+    private void buildCloudLayer(BufferBuilder bufferBuilder, double cloudX, double cloudY, double cloudZ, float scale, Vec3 color) {
+        //float lowpFracAccur = 1.0f / 256.0f;
+        //float mediumpFracAccur = 1.0f / 1024.0f;
+        float lowpFracAccur = (float) Math.pow(2.0, -8);
+        float mediumpFracAccur = (float) Math.pow(2.0, -10);
+        float viewDistance = 8;
+        float cloudThickness = 4.0f;
+        float adjustedCloudX = (float)Math.floor(cloudX) * lowpFracAccur;
+        float adjustedCloudZ = (float)Math.floor(cloudZ) * lowpFracAccur;
+        float redTop = (float)color.x;
+        float greenTop = (float)color.y;
+        float blueTop = (float)color.z;
+        float redEW = redTop * 0.9f;
+        float greenEW = greenTop * 0.9f;
+        float blueEW = blueTop * 0.9f;
+        float redBottom = redTop * 0.7f;
+        float greenBottom = greenTop * 0.7f;
+        float blueBottom = blueTop * 0.7f;
+        float redNS = redTop * 0.8f;
+        float greenNS = greenTop * 0.8f;
+        float blueNS = blueTop * 0.8f;
         bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
-        float f18 = (float)Math.floor(y / 4.0) * 4.0f;
+        float adjustedCloudY = (float)Math.floor(cloudY / cloudThickness) * cloudThickness;
         if (this.prevCloudsType == CloudStatus.FANCY) {
-            int i2 = (int) (8 / scale) / 2;
+            int scaledViewDistance = (int) (viewDistance / scale) / 2;
 
-            for (int i = -i2; i <= i2; ++i) {
-                for (int j = -i2; j <= i2; ++j) {
+            for (int x = -scaledViewDistance; x <= scaledViewDistance; ++x) {
+                for (int z = -scaledViewDistance; z <= scaledViewDistance; ++z) {
                     int n3;
-                    float f19 = i * 8;
-                    float f20 = j * 8;
-                    if (f18 > -5.0f) {
-                        bufferBuilder.vertex(f19 + 0.0f, f18 + 0.0f, f20 + 8.0f).uv((f19 + 0.0f) * 0.00390625f + f4, (f20 + 8.0f) * 0.00390625f + f5).color(f12, f13, f14, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
-                        bufferBuilder.vertex(f19 + 8.0f, f18 + 0.0f, f20 + 8.0f).uv((f19 + 8.0f) * 0.00390625f + f4, (f20 + 8.0f) * 0.00390625f + f5).color(f12, f13, f14, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
-                        bufferBuilder.vertex(f19 + 8.0f, f18 + 0.0f, f20 + 0.0f).uv((f19 + 8.0f) * 0.00390625f + f4, (f20 + 0.0f) * 0.00390625f + f5).color(f12, f13, f14, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
-                        bufferBuilder.vertex(f19 + 0.0f, f18 + 0.0f, f20 + 0.0f).uv((f19 + 0.0f) * 0.00390625f + f4, (f20 + 0.0f) * 0.00390625f + f5).color(f12, f13, f14, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
+                    float scaledX = x * viewDistance;
+                    float scaledZ = z * viewDistance;
+                    if (adjustedCloudY > -5.0f) {
+                        bufferBuilder.vertex(scaledX + 0.0f, adjustedCloudY + 0.0f, scaledZ + 8.0f).uv((scaledX + 0.0f) * lowpFracAccur + adjustedCloudX, (scaledZ + 8.0f) * lowpFracAccur + adjustedCloudZ).color(redBottom, greenBottom, blueBottom, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
+                        bufferBuilder.vertex(scaledX + 8.0f, adjustedCloudY + 0.0f, scaledZ + 8.0f).uv((scaledX + 8.0f) * lowpFracAccur + adjustedCloudX, (scaledZ + 8.0f) * lowpFracAccur + adjustedCloudZ).color(redBottom, greenBottom, blueBottom, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
+                        bufferBuilder.vertex(scaledX + 8.0f, adjustedCloudY + 0.0f, scaledZ + 0.0f).uv((scaledX + 8.0f) * lowpFracAccur + adjustedCloudX, (scaledZ + 0.0f) * lowpFracAccur + adjustedCloudZ).color(redBottom, greenBottom, blueBottom, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
+                        bufferBuilder.vertex(scaledX + 0.0f, adjustedCloudY + 0.0f, scaledZ + 0.0f).uv((scaledX + 0.0f) * lowpFracAccur + adjustedCloudX, (scaledZ + 0.0f) * lowpFracAccur + adjustedCloudZ).color(redBottom, greenBottom, blueBottom, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
                     }
-                    if (f18 <= 5.0f) {
-                        bufferBuilder.vertex(f19 + 0.0f, f18 + 4.0f - 9.765625E-4f, f20 + 8.0f).uv((f19 + 0.0f) * 0.00390625f + f4, (f20 + 8.0f) * 0.00390625f + f5).color(f6, f7, f8, 0.8f).normal(0.0f, 1.0f, 0.0f).endVertex();
-                        bufferBuilder.vertex(f19 + 8.0f, f18 + 4.0f - 9.765625E-4f, f20 + 8.0f).uv((f19 + 8.0f) * 0.00390625f + f4, (f20 + 8.0f) * 0.00390625f + f5).color(f6, f7, f8, 0.8f).normal(0.0f, 1.0f, 0.0f).endVertex();
-                        bufferBuilder.vertex(f19 + 8.0f, f18 + 4.0f - 9.765625E-4f, f20 + 0.0f).uv((f19 + 8.0f) * 0.00390625f + f4, (f20 + 0.0f) * 0.00390625f + f5).color(f6, f7, f8, 0.8f).normal(0.0f, 1.0f, 0.0f).endVertex();
-                        bufferBuilder.vertex(f19 + 0.0f, f18 + 4.0f - 9.765625E-4f, f20 + 0.0f).uv((f19 + 0.0f) * 0.00390625f + f4, (f20 + 0.0f) * 0.00390625f + f5).color(f6, f7, f8, 0.8f).normal(0.0f, 1.0f, 0.0f).endVertex();
+                    if (adjustedCloudY <= 5.0f) {
+                        bufferBuilder.vertex(scaledX + 0.0f, adjustedCloudY + cloudThickness - mediumpFracAccur, scaledZ + 8.0f).uv((scaledX + 0.0f) * lowpFracAccur + adjustedCloudX, (scaledZ + 8.0f) * lowpFracAccur + adjustedCloudZ).color(redTop, greenTop, blueTop, 0.8f).normal(0.0f, 1.0f, 0.0f).endVertex();
+                        bufferBuilder.vertex(scaledX + 8.0f, adjustedCloudY + cloudThickness - mediumpFracAccur, scaledZ + 8.0f).uv((scaledX + 8.0f) * lowpFracAccur + adjustedCloudX, (scaledZ + 8.0f) * lowpFracAccur + adjustedCloudZ).color(redTop, greenTop, blueTop, 0.8f).normal(0.0f, 1.0f, 0.0f).endVertex();
+                        bufferBuilder.vertex(scaledX + 8.0f, adjustedCloudY + cloudThickness - mediumpFracAccur, scaledZ + 0.0f).uv((scaledX + 8.0f) * lowpFracAccur + adjustedCloudX, (scaledZ + 0.0f) * lowpFracAccur + adjustedCloudZ).color(redTop, greenTop, blueTop, 0.8f).normal(0.0f, 1.0f, 0.0f).endVertex();
+                        bufferBuilder.vertex(scaledX + 0.0f, adjustedCloudY + cloudThickness - mediumpFracAccur, scaledZ + 0.0f).uv((scaledX + 0.0f) * lowpFracAccur + adjustedCloudX, (scaledZ + 0.0f) * lowpFracAccur + adjustedCloudZ).color(redTop, greenTop, blueTop, 0.8f).normal(0.0f, 1.0f, 0.0f).endVertex();
                     }
-                    if (i > -1) {
+                    if (x > -1) {
                         for (n3 = 0; n3 < 8; ++n3) {
-                            bufferBuilder.vertex(f19 + (float)n3 + 0.0f, f18 + 0.0f, f20 + 8.0f).uv((f19 + (float)n3 + 0.5f) * 0.00390625f + f4, (f20 + 8.0f) * 0.00390625f + f5).color(f9, f10, f11, 0.8f).normal(-1.0f, 0.0f, 0.0f).endVertex();
-                            bufferBuilder.vertex(f19 + (float)n3 + 0.0f, f18 + 4.0f, f20 + 8.0f).uv((f19 + (float)n3 + 0.5f) * 0.00390625f + f4, (f20 + 8.0f) * 0.00390625f + f5).color(f9, f10, f11, 0.8f).normal(-1.0f, 0.0f, 0.0f).endVertex();
-                            bufferBuilder.vertex(f19 + (float)n3 + 0.0f, f18 + 4.0f, f20 + 0.0f).uv((f19 + (float)n3 + 0.5f) * 0.00390625f + f4, (f20 + 0.0f) * 0.00390625f + f5).color(f9, f10, f11, 0.8f).normal(-1.0f, 0.0f, 0.0f).endVertex();
-                            bufferBuilder.vertex(f19 + (float)n3 + 0.0f, f18 + 0.0f, f20 + 0.0f).uv((f19 + (float)n3 + 0.5f) * 0.00390625f + f4, (f20 + 0.0f) * 0.00390625f + f5).color(f9, f10, f11, 0.8f).normal(-1.0f, 0.0f, 0.0f).endVertex();
+                            bufferBuilder.vertex(scaledX + (float)n3 + 0.0f, adjustedCloudY + 0.0f, scaledZ + 8.0f).uv((scaledX + (float)n3 + 0.5f) * lowpFracAccur + adjustedCloudX, (scaledZ + 8.0f) * lowpFracAccur + adjustedCloudZ).color(redEW, greenEW, blueEW, 0.8f).normal(-1.0f, 0.0f, 0.0f).endVertex();
+                            bufferBuilder.vertex(scaledX + (float)n3 + 0.0f, adjustedCloudY + cloudThickness, scaledZ + 8.0f).uv((scaledX + (float)n3 + 0.5f) * lowpFracAccur + adjustedCloudX, (scaledZ + 8.0f) * lowpFracAccur + adjustedCloudZ).color(redEW, greenEW, blueEW, 0.8f).normal(-1.0f, 0.0f, 0.0f).endVertex();
+                            bufferBuilder.vertex(scaledX + (float)n3 + 0.0f, adjustedCloudY + cloudThickness, scaledZ + 0.0f).uv((scaledX + (float)n3 + 0.5f) * lowpFracAccur + adjustedCloudX, (scaledZ + 0.0f) * lowpFracAccur + adjustedCloudZ).color(redEW, greenEW, blueEW, 0.8f).normal(-1.0f, 0.0f, 0.0f).endVertex();
+                            bufferBuilder.vertex(scaledX + (float)n3 + 0.0f, adjustedCloudY + 0.0f, scaledZ + 0.0f).uv((scaledX + (float)n3 + 0.5f) * lowpFracAccur + adjustedCloudX, (scaledZ + 0.0f) * lowpFracAccur + adjustedCloudZ).color(redEW, greenEW, blueEW, 0.8f).normal(-1.0f, 0.0f, 0.0f).endVertex();
                         }
                     }
-                    if (i <= 1) {
+                    if (x <= 1) {
                         for (n3 = 0; n3 < 8; ++n3) {
-                            bufferBuilder.vertex(f19 + (float)n3 + 1.0f - 9.765625E-4f, f18 + 0.0f, f20 + 8.0f).uv((f19 + (float)n3 + 0.5f) * 0.00390625f + f4, (f20 + 8.0f) * 0.00390625f + f5).color(f9, f10, f11, 0.8f).normal(1.0f, 0.0f, 0.0f).endVertex();
-                            bufferBuilder.vertex(f19 + (float)n3 + 1.0f - 9.765625E-4f, f18 + 4.0f, f20 + 8.0f).uv((f19 + (float)n3 + 0.5f) * 0.00390625f + f4, (f20 + 8.0f) * 0.00390625f + f5).color(f9, f10, f11, 0.8f).normal(1.0f, 0.0f, 0.0f).endVertex();
-                            bufferBuilder.vertex(f19 + (float)n3 + 1.0f - 9.765625E-4f, f18 + 4.0f, f20 + 0.0f).uv((f19 + (float)n3 + 0.5f) * 0.00390625f + f4, (f20 + 0.0f) * 0.00390625f + f5).color(f9, f10, f11, 0.8f).normal(1.0f, 0.0f, 0.0f).endVertex();
-                            bufferBuilder.vertex(f19 + (float)n3 + 1.0f - 9.765625E-4f, f18 + 0.0f, f20 + 0.0f).uv((f19 + (float)n3 + 0.5f) * 0.00390625f + f4, (f20 + 0.0f) * 0.00390625f + f5).color(f9, f10, f11, 0.8f).normal(1.0f, 0.0f, 0.0f).endVertex();
+                            bufferBuilder.vertex(scaledX + (float)n3 + 1.0f - mediumpFracAccur, adjustedCloudY + 0.0f, scaledZ + 8.0f).uv((scaledX + (float)n3 + 0.5f) * lowpFracAccur + adjustedCloudX, (scaledZ + 8.0f) * lowpFracAccur + adjustedCloudZ).color(redEW, greenEW, blueEW, 0.8f).normal(1.0f, 0.0f, 0.0f).endVertex();
+                            bufferBuilder.vertex(scaledX + (float)n3 + 1.0f - mediumpFracAccur, adjustedCloudY + cloudThickness, scaledZ + 8.0f).uv((scaledX + (float)n3 + 0.5f) * lowpFracAccur + adjustedCloudX, (scaledZ + 8.0f) * lowpFracAccur + adjustedCloudZ).color(redEW, greenEW, blueEW, 0.8f).normal(1.0f, 0.0f, 0.0f).endVertex();
+                            bufferBuilder.vertex(scaledX + (float)n3 + 1.0f - mediumpFracAccur, adjustedCloudY + cloudThickness, scaledZ + 0.0f).uv((scaledX + (float)n3 + 0.5f) * lowpFracAccur + adjustedCloudX, (scaledZ + 0.0f) * lowpFracAccur + adjustedCloudZ).color(redEW, greenEW, blueEW, 0.8f).normal(1.0f, 0.0f, 0.0f).endVertex();
+                            bufferBuilder.vertex(scaledX + (float)n3 + 1.0f - mediumpFracAccur, adjustedCloudY + 0.0f, scaledZ + 0.0f).uv((scaledX + (float)n3 + 0.5f) * lowpFracAccur + adjustedCloudX, (scaledZ + 0.0f) * lowpFracAccur + adjustedCloudZ).color(redEW, greenEW, blueEW, 0.8f).normal(1.0f, 0.0f, 0.0f).endVertex();
                         }
                     }
-                    if (j > -1) {
+                    if (z > -1) {
                         for (n3 = 0; n3 < 8; ++n3) {
-                            bufferBuilder.vertex(f19 + 0.0f, f18 + 4.0f, f20 + (float)n3 + 0.0f).uv((f19 + 0.0f) * 0.00390625f + f4, (f20 + (float)n3 + 0.5f) * 0.00390625f + f5).color(f15, f16, f17, 0.8f).normal(0.0f, 0.0f, -1.0f).endVertex();
-                            bufferBuilder.vertex(f19 + 8.0f, f18 + 4.0f, f20 + (float)n3 + 0.0f).uv((f19 + 8.0f) * 0.00390625f + f4, (f20 + (float)n3 + 0.5f) * 0.00390625f + f5).color(f15, f16, f17, 0.8f).normal(0.0f, 0.0f, -1.0f).endVertex();
-                            bufferBuilder.vertex(f19 + 8.0f, f18 + 0.0f, f20 + (float)n3 + 0.0f).uv((f19 + 8.0f) * 0.00390625f + f4, (f20 + (float)n3 + 0.5f) * 0.00390625f + f5).color(f15, f16, f17, 0.8f).normal(0.0f, 0.0f, -1.0f).endVertex();
-                            bufferBuilder.vertex(f19 + 0.0f, f18 + 0.0f, f20 + (float)n3 + 0.0f).uv((f19 + 0.0f) * 0.00390625f + f4, (f20 + (float)n3 + 0.5f) * 0.00390625f + f5).color(f15, f16, f17, 0.8f).normal(0.0f, 0.0f, -1.0f).endVertex();
+                            bufferBuilder.vertex(scaledX + 0.0f, adjustedCloudY + cloudThickness, scaledZ + (float)n3 + 0.0f).uv((scaledX + 0.0f) * lowpFracAccur + adjustedCloudX, (scaledZ + (float)n3 + 0.5f) * lowpFracAccur + adjustedCloudZ).color(redNS, greenNS, blueNS, 0.8f).normal(0.0f, 0.0f, -1.0f).endVertex();
+                            bufferBuilder.vertex(scaledX + 8.0f, adjustedCloudY + cloudThickness, scaledZ + (float)n3 + 0.0f).uv((scaledX + 8.0f) * lowpFracAccur + adjustedCloudX, (scaledZ + (float)n3 + 0.5f) * lowpFracAccur + adjustedCloudZ).color(redNS, greenNS, blueNS, 0.8f).normal(0.0f, 0.0f, -1.0f).endVertex();
+                            bufferBuilder.vertex(scaledX + 8.0f, adjustedCloudY + 0.0f, scaledZ + (float)n3 + 0.0f).uv((scaledX + 8.0f) * lowpFracAccur + adjustedCloudX, (scaledZ + (float)n3 + 0.5f) * lowpFracAccur + adjustedCloudZ).color(redNS, greenNS, blueNS, 0.8f).normal(0.0f, 0.0f, -1.0f).endVertex();
+                            bufferBuilder.vertex(scaledX + 0.0f, adjustedCloudY + 0.0f, scaledZ + (float)n3 + 0.0f).uv((scaledX + 0.0f) * lowpFracAccur + adjustedCloudX, (scaledZ + (float)n3 + 0.5f) * lowpFracAccur + adjustedCloudZ).color(redNS, greenNS, blueNS, 0.8f).normal(0.0f, 0.0f, -1.0f).endVertex();
                         }
                     }
-                    if (j > 1) continue;
+                    if (z > 1) continue;
                     for (n3 = 0; n3 < 8; ++n3) {
-                        bufferBuilder.vertex(f19 + 0.0f, f18 + 4.0f, f20 + (float)n3 + 1.0f - 9.765625E-4f).uv((f19 + 0.0f) * 0.00390625f + f4, (f20 + (float)n3 + 0.5f) * 0.00390625f + f5).color(f15, f16, f17, 0.8f).normal(0.0f, 0.0f, 1.0f).endVertex();
-                        bufferBuilder.vertex(f19 + 8.0f, f18 + 4.0f, f20 + (float)n3 + 1.0f - 9.765625E-4f).uv((f19 + 8.0f) * 0.00390625f + f4, (f20 + (float)n3 + 0.5f) * 0.00390625f + f5).color(f15, f16, f17, 0.8f).normal(0.0f, 0.0f, 1.0f).endVertex();
-                        bufferBuilder.vertex(f19 + 8.0f, f18 + 0.0f, f20 + (float)n3 + 1.0f - 9.765625E-4f).uv((f19 + 8.0f) * 0.00390625f + f4, (f20 + (float)n3 + 0.5f) * 0.00390625f + f5).color(f15, f16, f17, 0.8f).normal(0.0f, 0.0f, 1.0f).endVertex();
-                        bufferBuilder.vertex(f19 + 0.0f, f18 + 0.0f, f20 + (float)n3 + 1.0f - 9.765625E-4f).uv((f19 + 0.0f) * 0.00390625f + f4, (f20 + (float)n3 + 0.5f) * 0.00390625f + f5).color(f15, f16, f17, 0.8f).normal(0.0f, 0.0f, 1.0f).endVertex();
+                        bufferBuilder.vertex(scaledX + 0.0f, adjustedCloudY + cloudThickness, scaledZ + (float)n3 + 1.0f - mediumpFracAccur).uv((scaledX + 0.0f) * lowpFracAccur + adjustedCloudX, (scaledZ + (float)n3 + 0.5f) * lowpFracAccur + adjustedCloudZ).color(redNS, greenNS, blueNS, 0.8f).normal(0.0f, 0.0f, 1.0f).endVertex();
+                        bufferBuilder.vertex(scaledX + 8.0f, adjustedCloudY + cloudThickness, scaledZ + (float)n3 + 1.0f - mediumpFracAccur).uv((scaledX + 8.0f) * lowpFracAccur + adjustedCloudX, (scaledZ + (float)n3 + 0.5f) * lowpFracAccur + adjustedCloudZ).color(redNS, greenNS, blueNS, 0.8f).normal(0.0f, 0.0f, 1.0f).endVertex();
+                        bufferBuilder.vertex(scaledX + 8.0f, adjustedCloudY + 0.0f, scaledZ + (float)n3 + 1.0f - mediumpFracAccur).uv((scaledX + 8.0f) * lowpFracAccur + adjustedCloudX, (scaledZ + (float)n3 + 0.5f) * lowpFracAccur + adjustedCloudZ).color(redNS, greenNS, blueNS, 0.8f).normal(0.0f, 0.0f, 1.0f).endVertex();
+                        bufferBuilder.vertex(scaledX + 0.0f, adjustedCloudY + 0.0f, scaledZ + (float)n3 + 1.0f - mediumpFracAccur).uv((scaledX + 0.0f) * lowpFracAccur + adjustedCloudX, (scaledZ + (float)n3 + 0.5f) * lowpFracAccur + adjustedCloudZ).color(redNS, greenNS, blueNS, 0.8f).normal(0.0f, 0.0f, 1.0f).endVertex();
                     }
                 }
             }
         } else {
-            boolean bl = true;
-            int n4 = (int) (32 / scale);
-            for (int i = -n4; i < n4; i += n4) {
-                for (int j = -n4; j < n4; j += n4) {
-                    bufferBuilder.vertex(i + 0, f18, j + n4).uv((float)(i + 0) * 0.00390625f + f4, (float)(j + n4) * 0.00390625f + f5).color(f6, f7, f8, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
-                    bufferBuilder.vertex(i + n4, f18, j + n4).uv((float)(i + n4) * 0.00390625f + f4, (float)(j + n4) * 0.00390625f + f5).color(f6, f7, f8, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
-                    bufferBuilder.vertex(i + n4, f18, j + 0).uv((float)(i + n4) * 0.00390625f + f4, (float)(j + 0) * 0.00390625f + f5).color(f6, f7, f8, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
-                    bufferBuilder.vertex(i + 0, f18, j + 0).uv((float)(i + 0) * 0.00390625f + f4, (float)(j + 0) * 0.00390625f + f5).color(f6, f7, f8, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
+            int scaled32Chunks = (int) (32 / scale);
+            for (int x = -scaled32Chunks; x < scaled32Chunks; x += scaled32Chunks) {
+                for (int z = -scaled32Chunks; z < scaled32Chunks; z += scaled32Chunks) {
+                    bufferBuilder.vertex(x, adjustedCloudY, z + scaled32Chunks).uv((float)x * lowpFracAccur + adjustedCloudX, (float)(z + scaled32Chunks) * lowpFracAccur + adjustedCloudZ).color(redTop, greenTop, blueTop, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
+                    bufferBuilder.vertex(x + scaled32Chunks, adjustedCloudY, z + scaled32Chunks).uv((float)(x + scaled32Chunks) * lowpFracAccur + adjustedCloudX, (float)(z + scaled32Chunks) * lowpFracAccur + adjustedCloudZ).color(redTop, greenTop, blueTop, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
+                    bufferBuilder.vertex(x + scaled32Chunks, adjustedCloudY, z).uv((float)(x + scaled32Chunks) * lowpFracAccur + adjustedCloudX, (float)z * lowpFracAccur + adjustedCloudZ).color(redTop, greenTop, blueTop, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
+                    bufferBuilder.vertex(x, adjustedCloudY, z).uv((float)x * lowpFracAccur + adjustedCloudX, (float)z * lowpFracAccur + adjustedCloudZ).color(redTop, greenTop, blueTop, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
                 }
             }
         }
