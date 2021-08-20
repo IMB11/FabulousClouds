@@ -201,8 +201,8 @@ public final class MixinLevelRenderer {
         if (this.prevCloudsType == CloudStatus.FANCY) {
             int i2 = (int) (8 / scale) / 2;
 
-            for (int i = -i2 + 1; i <= i2; ++i) {
-                for (int j = -i2 + 1; j <= i2; ++j) {
+            for (int i = -i2; i <= i2; ++i) {
+                for (int j = -i2; j <= i2; ++j) {
                     int n3;
                     float f19 = i * 8;
                     float f20 = j * 8;
