@@ -63,11 +63,10 @@ public final class MixinLevelRenderer {
     @Inject(method = "renderClouds", at = @At("HEAD"), cancellable = true)
     public void renderClouds(PoseStack poseStack, Matrix4f model, float tickDelta, double cameraX, double cameraY, double cameraZ, CallbackInfo ci) {
         FabulousCloudsConfig config = FabulousClouds.getConfig();
-        if (FabulousClouds.getConfig().noise_clouds) {
-            TextureManager textureManager = Minecraft.getInstance().getTextureManager();
-            registerClouds(textureManager);
-            NoiseCloudHandler.update();
-        }
+
+        TextureManager textureManager = Minecraft.getInstance().getTextureManager();
+        registerClouds(textureManager);
+        NoiseCloudHandler.update();
 
         if (minecraft.level.dimension() == ClientLevel.OVERWORLD) {
             float cloudHeight = DimensionSpecialEffects.OverworldEffects.CLOUD_LEVEL;
