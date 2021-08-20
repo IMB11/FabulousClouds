@@ -11,6 +11,8 @@
   "tooltip.fabulousclouds.enable_default_cloud_layer": "Enable the vanilla cloud layer.",
   "option.fabulousclouds.noise_clouds": "Noise Clouds",
   "tooltip.fabulousclouds.noise_clouds": "Clouds and cloud covers change over time and are randomly generated.",
-  "option.fabulousclouds.debug_noise_clouds": "Debug Noise Clouds",
-  "tooltip.fabulousclouds.debug_noise_clouds": "Adds the clouds.png texture to your F3 screen."
+  "option.fabulousclouds.debug_noise_clouds": "Noise Clouds Debug Screen",
+  "tooltip.fabulousclouds.debug_noise_clouds": "Adds the clouds.png texture to your F3 screen.",
+  "option.fabulousclouds.offset_cloud_rendering": "Offset Cloud Render Distance",
+  "tooltip.fabulousclouds.offset_cloud_rendering": "Clouds render farther the higher up they are. This can be very laggy so don't use this if fog is enabled."
 }

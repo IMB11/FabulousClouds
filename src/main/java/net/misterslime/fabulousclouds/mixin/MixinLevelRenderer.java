@@ -143,7 +143,7 @@ public final class MixinLevelRenderer {
             if (this.cloudBuffer != null) this.cloudBuffer.close();
 
             this.cloudBuffer = new VertexBuffer();
-            this.buildCloudLayer(bufferBuilder, posX, posY, posZ, cloudScale, cloudColor);
+            this.buildCloudLayer(bufferBuilder, posX, posY, posZ, cloudOffset, cloudScale, cloudColor);
             bufferBuilder.end();
             this.cloudBuffer.upload(bufferBuilder);
         }
@@ -173,7 +173,7 @@ public final class MixinLevelRenderer {
         RenderSystem.disableBlend();
     }
 
-    private void buildCloudLayer(BufferBuilder bufferBuilder, double cloudX, double cloudY, double cloudZ, float scale, Vec3 color) {
+    private void buildCloudLayer(BufferBuilder bufferBuilder, double cloudX, double cloudY, double cloudZ, float offset, float scale, Vec3 color) {
         float lowpFracAccur = (float) Math.pow(2.0, -8);
         float mediumpFracAccur = (float) Math.pow(2.0, -10);
         float viewDistance = 8;
@@ -195,7 +195,18 @@ public final class MixinLevelRenderer {
         bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
         float adjustedCloudY = (float)Math.floor(cloudY / cloudThickness) * cloudThickness;
         if (this.prevCloudsType == CloudStatus.FANCY) {
-            int scaledViewDistance = (int) (viewDistance / scale) / 2;
+            int scaledViewDistance = (int) ((viewDistance / scale) / 2);
+
+            if (FabulousClouds.getConfig().offset_cloud_rendering) {
+                float cloudHeightOffset = offset + DimensionSpecialEffects.OverworldEffects.CLOUD_LEVEL - 63;
+                float cloudHeightSeaLevel = DimensionSpecialEffects.OverworldEffects.CLOUD_LEVEL - 63;
+
+                if (cloudHeightOffset > cloudHeightSeaLevel) {
+                    float offsetScale = cloudHeightOffset / cloudHeightSeaLevel;
+
+                    scaledViewDistance *= offsetScale;
+                }
+            }
 
             for (int x = -scaledViewDistance; x <= scaledViewDistance; ++x) {
                 for (int z = -scaledViewDistance; z <= scaledViewDistance; ++z) {

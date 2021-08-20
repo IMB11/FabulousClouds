@@ -16,10 +16,11 @@ public class FabulousCloudsConfig {
     public float vibrance_intensity = 1.0f;
     public boolean enable_default_cloud_layer = true;
     public CloudLayer[] cloud_layers = new CloudLayer[] {
-            new CloudLayer(64, 1.25f, -1.0f)
+            new CloudLayer(64.0f, 1.25f, -1.0f)
     };
     public boolean noise_clouds = true;
     public boolean debug_noise_clouds = false;
+    public boolean offset_cloud_rendering = false;
 
     public static FabulousCloudsConfig load() throws IOException {
         Path configFile = FabricLoader.getInstance().getConfigDir().resolve("fabulous-clouds.json");

@@ -58,6 +58,12 @@ public class ConfigScreenFactory {
                 .setSaveConsumer(newValue -> config.debug_noise_clouds = newValue)
                 .build());
 
+        general.addEntry(entryBuilder.startBooleanToggle(new TranslatableComponent("option.fabulousclouds.offset_cloud_rendering"), config.offset_cloud_rendering)
+                .setDefaultValue(defaultConfig.offset_cloud_rendering)
+                .setTooltip(new TranslatableComponent("tooltip.fabulousclouds.offset_cloud_rendering"))
+                .setSaveConsumer(newValue -> config.offset_cloud_rendering = newValue)
+                .build());
+
         return builder.build();
     }
 }
