@@ -1,9 +1,9 @@
-package net.misterslime.fabulousclouds;
+package net.misterslime.fabulousclouds.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
+import net.misterslime.fabulousclouds.FabulousClouds;
 import net.misterslime.fabulousclouds.config.FabulousCloudsConfig;
-import net.misterslime.fabulousclouds.clouds.CloudTexture;
 
 import java.util.LinkedList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package net.misterslime.fabulousclouds.clouds;
+package net.misterslime.fabulousclouds.client;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.renderer.texture.DynamicTexture;

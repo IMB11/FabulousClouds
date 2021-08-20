@@ -13,9 +13,9 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import net.misterslime.fabulousclouds.FabulousClouds;
-import net.misterslime.fabulousclouds.NoiseCloudHandler;
+import net.misterslime.fabulousclouds.client.NoiseCloudHandler;
 import net.misterslime.fabulousclouds.config.FabulousCloudsConfig;
-import net.misterslime.fabulousclouds.clouds.CloudTexture;
+import net.misterslime.fabulousclouds.client.CloudTexture;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
@@ -175,8 +175,6 @@ public final class MixinLevelRenderer {
     }
 
     private void buildCloudLayer(BufferBuilder bufferBuilder, double cloudX, double cloudY, double cloudZ, float scale, Vec3 color) {
-        //float lowpFracAccur = 1.0f / 256.0f;
-        //float mediumpFracAccur = 1.0f / 1024.0f;
         float lowpFracAccur = (float) Math.pow(2.0, -8);
         float mediumpFracAccur = (float) Math.pow(2.0, -10);
         float viewDistance = 8;
