@@ -72,7 +72,7 @@ public final class MixinLevelRenderer {
             float cloudHeight = DimensionSpecialEffects.OverworldEffects.CLOUD_LEVEL;
             if (!Float.isNaN(cloudHeight)) {
                 int i = 0;
-                for(FabulousCloudsConfig.CloudLayer cloudLayer : config.cloud_layers) {
+                for (FabulousCloudsConfig.CloudLayer cloudLayer : config.cloud_layers) {
                     CloudTexture cloudTexture = NoiseCloudHandler.cloudTextures.get(i);
                     renderCloudLayer(poseStack, model, tickDelta, cameraX, cameraY, cameraZ, cloudHeight, cloudLayer.offset, cloudLayer.scale, cloudLayer.speed, cloudTexture.resourceLocation);
                     i++;
@@ -194,6 +194,7 @@ public final class MixinLevelRenderer {
         float blueNS = blueTop * 0.8f;
         bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
         float adjustedCloudY = (float)Math.floor(cloudY / cloudThickness) * cloudThickness;
+
         if (this.prevCloudsType == CloudStatus.FANCY) {
             int scaledViewDistance = (int) ((viewDistance / scale) / 2);
 
@@ -260,6 +261,18 @@ public final class MixinLevelRenderer {
             }
         } else {
             int scaled32Chunks = (int) (32 / scale);
+
+            if (FabulousClouds.getConfig().offset_cloud_rendering) {
+                float cloudHeightOffset = offset + DimensionSpecialEffects.OverworldEffects.CLOUD_LEVEL - 63;
+                float cloudHeightSeaLevel = DimensionSpecialEffects.OverworldEffects.CLOUD_LEVEL - 63;
+
+                if (cloudHeightOffset > cloudHeightSeaLevel) {
+                    float offsetScale = cloudHeightOffset / cloudHeightSeaLevel;
+
+                    scaled32Chunks *= offsetScale;
+                }
+            }
+
             for (int x = -scaled32Chunks; x < scaled32Chunks; x += scaled32Chunks) {
                 for (int z = -scaled32Chunks; z < scaled32Chunks; z += scaled32Chunks) {
                     bufferBuilder.vertex(x, adjustedCloudY, z + scaled32Chunks).uv((float)x * lowpFracAccur + adjustedCloudX, (float)(z + scaled32Chunks) * lowpFracAccur + adjustedCloudZ).color(redTop, greenTop, blueTop, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
