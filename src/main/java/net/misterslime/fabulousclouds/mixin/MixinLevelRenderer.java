@@ -194,11 +194,12 @@ public final class MixinLevelRenderer {
         float blueNS = blueTop * 0.8f;
         bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
         float adjustedCloudY = (float)Math.floor(cloudY / cloudThickness) * cloudThickness;
+        boolean offsetCloudRendering = FabulousClouds.getConfig().offset_cloud_rendering;
 
         if (this.prevCloudsType == CloudStatus.FANCY) {
-            int scaledViewDistance = (int) ((viewDistance / scale) / 2);
+            int scaledViewDistance = (int) ((minecraft.options.renderDistance / 4) / scale) / 2;
 
-            if (FabulousClouds.getConfig().offset_cloud_rendering) {
+            if (offsetCloudRendering) {
                 float cloudHeightOffset = offset + DimensionSpecialEffects.OverworldEffects.CLOUD_LEVEL - 63;
                 float cloudHeightSeaLevel = DimensionSpecialEffects.OverworldEffects.CLOUD_LEVEL - 63;
 
@@ -209,8 +210,8 @@ public final class MixinLevelRenderer {
                 }
             }
 
-            for (int x = -scaledViewDistance; x <= scaledViewDistance; ++x) {
-                for (int z = -scaledViewDistance; z <= scaledViewDistance; ++z) {
+            for (int x = -scaledViewDistance - 1; x <= scaledViewDistance; ++x) {
+                for (int z = -scaledViewDistance - 1; z <= scaledViewDistance; ++z) {
                     int n3;
                     float scaledX = x * viewDistance;
                     float scaledZ = z * viewDistance;
@@ -260,24 +261,24 @@ public final class MixinLevelRenderer {
                 }
             }
         } else {
-            int scaled32Chunks = (int) (32 / scale);
+            int scaledRenderDistance = (int) (minecraft.options.renderDistance / scale);
 
-            if (FabulousClouds.getConfig().offset_cloud_rendering) {
+            if (offsetCloudRendering) {
                 float cloudHeightOffset = offset + DimensionSpecialEffects.OverworldEffects.CLOUD_LEVEL - 63;
                 float cloudHeightSeaLevel = DimensionSpecialEffects.OverworldEffects.CLOUD_LEVEL - 63;
 
                 if (cloudHeightOffset > cloudHeightSeaLevel) {
                     float offsetScale = cloudHeightOffset / cloudHeightSeaLevel;
 
-                    scaled32Chunks *= offsetScale;
+                    scaledRenderDistance *= offsetScale;
                 }
             }
 
-            for (int x = -scaled32Chunks; x < scaled32Chunks; x += scaled32Chunks) {
-                for (int z = -scaled32Chunks; z < scaled32Chunks; z += scaled32Chunks) {
-                    bufferBuilder.vertex(x, adjustedCloudY, z + scaled32Chunks).uv((float)x * lowpFracAccur + adjustedCloudX, (float)(z + scaled32Chunks) * lowpFracAccur + adjustedCloudZ).color(redTop, greenTop, blueTop, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
-                    bufferBuilder.vertex(x + scaled32Chunks, adjustedCloudY, z + scaled32Chunks).uv((float)(x + scaled32Chunks) * lowpFracAccur + adjustedCloudX, (float)(z + scaled32Chunks) * lowpFracAccur + adjustedCloudZ).color(redTop, greenTop, blueTop, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
-                    bufferBuilder.vertex(x + scaled32Chunks, adjustedCloudY, z).uv((float)(x + scaled32Chunks) * lowpFracAccur + adjustedCloudX, (float)z * lowpFracAccur + adjustedCloudZ).color(redTop, greenTop, blueTop, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
+            for (int x = -scaledRenderDistance; x < scaledRenderDistance; x += scaledRenderDistance) {
+                for (int z = -scaledRenderDistance; z < scaledRenderDistance; z += scaledRenderDistance) {
+                    bufferBuilder.vertex(x, adjustedCloudY, z + scaledRenderDistance).uv((float)x * lowpFracAccur + adjustedCloudX, (float)(z + scaledRenderDistance) * lowpFracAccur + adjustedCloudZ).color(redTop, greenTop, blueTop, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
+                    bufferBuilder.vertex(x + scaledRenderDistance, adjustedCloudY, z + scaledRenderDistance).uv((float)(x + scaledRenderDistance) * lowpFracAccur + adjustedCloudX, (float)(z + scaledRenderDistance) * lowpFracAccur + adjustedCloudZ).color(redTop, greenTop, blueTop, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
+                    bufferBuilder.vertex(x + scaledRenderDistance, adjustedCloudY, z).uv((float)(x + scaledRenderDistance) * lowpFracAccur + adjustedCloudX, (float)z * lowpFracAccur + adjustedCloudZ).color(redTop, greenTop, blueTop, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
                     bufferBuilder.vertex(x, adjustedCloudY, z).uv((float)x * lowpFracAccur + adjustedCloudX, (float)z * lowpFracAccur + adjustedCloudZ).color(redTop, greenTop, blueTop, 0.8f).normal(0.0f, -1.0f, 0.0f).endVertex();
                 }
             }
