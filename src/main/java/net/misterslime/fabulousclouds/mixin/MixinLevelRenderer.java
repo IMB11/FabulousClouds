@@ -4,12 +4,15 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix4f;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.CloudStatus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.network.chat.ChatType;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import net.misterslime.fabulousclouds.FabulousClouds;
@@ -66,9 +69,9 @@ public final class MixinLevelRenderer {
                 CloudTexture cloudTexture = NoiseCloudHandler.cloudTextures.get(NoiseCloudHandler.cloudTextures.size() - 1);
                 renderCloudLayer(poseStack, model, tickDelta, cameraX, cameraY, cameraZ, cloudHeight, 0, 1, 1, cloudTexture.resourceLocation);
             }
-
-            ci.cancel();
         }
+
+        ci.cancel();
     }
 
     private void registerClouds(TextureManager textureManager) {
@@ -83,6 +86,10 @@ public final class MixinLevelRenderer {
                 DynamicTexture texture = cloudTexture.getNativeImage();
                 textureManager.register(cloudTexture.resourceLocation, texture);
                 cloudTexture.setTexture(texture);
+            }
+
+            if (FabricLoader.getInstance().isModLoaded("immersive_portals")) {
+                Minecraft.getInstance().gui.handleChat(ChatType.SYSTEM, new TranslatableComponent("messages.fabulousclouds.warn_immersive_portals"), Minecraft.getInstance().player.getUUID());
             }
 
             this.initializedClouds = true;
@@ -130,7 +137,11 @@ public final class MixinLevelRenderer {
             bufferBuilder.end();
             this.cloudBuffer.upload(bufferBuilder);
         }
-        RenderSystem.setShaderTexture(0, resourceLocation);
+        if (FabricLoader.getInstance().isModLoaded("immersive_portals")) {
+            RenderSystem.setShaderTexture(0, CLOUDS_LOCATION);
+        } else {
+            RenderSystem.setShaderTexture(0, resourceLocation);
+        }
         FogRenderer.levelFogColor();
         poseStack.pushPose();
         poseStack.scale(scale, cloudScale, scale);

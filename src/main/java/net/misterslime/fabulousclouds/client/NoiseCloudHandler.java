@@ -3,11 +3,9 @@ package net.misterslime.fabulousclouds.client;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.misterslime.fabulousclouds.FabulousClouds;
-import net.misterslime.fabulousclouds.config.FabulousCloudsConfig;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 
 public final class NoiseCloudHandler {
 
@@ -29,12 +27,16 @@ public final class NoiseCloudHandler {
             if (update > timeIdx) {
                 timeIdx = update;
                 for (CloudTexture cloudTexture : cloudTextures) {
-                    cloudTexture.updateImage(time);
+                    if (cloudTexture.cloudsTexture.getPixels() != null) {
+                        cloudTexture.updateImage(time);
+                    }
                 }
             }
 
             for (CloudTexture cloudTexture : cloudTextures) {
-                cloudTexture.updatePixels();
+                if (cloudTexture.cloudsTexture.getPixels() != null) {
+                    cloudTexture.updatePixels();
+                }
             }
         }
     }

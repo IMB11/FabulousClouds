@@ -14,5 +14,7 @@
   "option.fabulousclouds.debug_noise_clouds": "Noise Clouds Debug Screen",
   "tooltip.fabulousclouds.debug_noise_clouds": "Adds the clouds.png texture to your F3 screen.",
   "option.fabulousclouds.offset_cloud_rendering": "Offset Cloud Render Distance",
-  "tooltip.fabulousclouds.offset_cloud_rendering": "Clouds render farther the higher up they are. This can be very laggy so don't use this if fog is enabled."
+  "tooltip.fabulousclouds.offset_cloud_rendering": "Clouds render farther the higher up they are. This can be very laggy so don't use this if fog is enabled.",
+
+  "messages.fabulousclouds.warn_immersive_portals": "Warning: Because Immersive Portals is installed some features of Fabulous Clouds wont work properly. The most noticeable difference is that clouds will all use the same cover and texture."
 }
