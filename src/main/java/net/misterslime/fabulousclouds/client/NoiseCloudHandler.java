@@ -54,10 +54,8 @@ public final class NoiseCloudHandler {
     public static void initCloudTextures(ResourceLocation defaultCloud) {
         CloudTexture defaultCloudTexture = new CloudTexture(defaultCloud);
 
-        for (FabulousCloudsConfig.CloudLayer cloudLayer : FabulousClouds.getConfig().cloud_layers) {
-            Random random = new Random();
-
-            cloudTextures.add(FabulousClouds.getConfig().noise_clouds ? new CloudTexture(new ResourceLocation("fabulousclouds", "textures/environment/" + random.hashCode() + ".png")) : defaultCloudTexture);
+        for (int i = 0; i < FabulousClouds.getConfig().cloud_layers.length; i++) {
+            cloudTextures.add(FabulousClouds.getConfig().noise_clouds ? new CloudTexture(new ResourceLocation("fabulousclouds", "textures/environment/clouds" + i + ".png")) : defaultCloudTexture);
         }
 
         if (FabulousClouds.getConfig().enable_default_cloud_layer) {

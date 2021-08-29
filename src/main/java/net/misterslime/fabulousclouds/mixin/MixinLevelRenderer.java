@@ -27,34 +27,17 @@ import java.util.Random;
 @Mixin(LevelRenderer.class)
 public final class MixinLevelRenderer {
 
-    @Final
-    @Shadow
-    private static ResourceLocation CLOUDS_LOCATION;
-    @Shadow
-    private final int ticks;
-    @Final
-    @Shadow
-    @NotNull
-    private final Minecraft minecraft;
-    @Shadow
-    private int prevCloudX;
-    @Shadow
-    private int prevCloudY;
-    @Shadow
-    private int prevCloudZ;
-    @Shadow
-    @NotNull
-    private Vec3 prevCloudColor;
-    @Shadow
-    @NotNull
-    private CloudStatus prevCloudsType;
-    @Shadow
-    private boolean generateClouds;
-    @Shadow
-    @NotNull
-    private VertexBuffer cloudBuffer;
-    @Unique
-    private boolean initializedClouds = false;
+    @Final @Shadow private static ResourceLocation CLOUDS_LOCATION;
+    @Shadow private final int ticks;
+    @Final @Shadow @NotNull private final Minecraft minecraft;
+    @Shadow private int prevCloudX;
+    @Shadow private int prevCloudY;
+    @Shadow private int prevCloudZ;
+    @Shadow @NotNull private Vec3 prevCloudColor;
+    @Shadow @NotNull private CloudStatus prevCloudsType;
+    @Shadow private boolean generateClouds;
+    @Shadow @NotNull private VertexBuffer cloudBuffer;
+    @Unique private boolean initializedClouds = false;
 
     public MixinLevelRenderer() {
         throw new NullPointerException("Null cannot be cast to non-null type.");

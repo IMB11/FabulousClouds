@@ -38,5 +38,8 @@
   "suggests": {
     "modmenu": "^${modmenu_version}",
     "cloth-config2": "^${cloth_version}"
+  },
+  "breaks": {
+    "immersive_portals": "*"
   }
 }
