@@ -1,8 +1,8 @@
 package net.misterslime.fabulousclouds.mixin;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.phys.Vec3;
+
 import net.misterslime.fabulousclouds.FabulousClouds;
 import net.misterslime.fabulousclouds.config.FabulousCloudsConfig;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,13 +19,12 @@ public class MixinClientLevel {
 
         if (config.vibrant_clouds) {
             Vec3 cloudColor = cir.getReturnValue();
-            float[] fogColor = RenderSystem.getShaderFogColor();
             float vibranceIntensity = config.vibrance_intensity;
 
             double[] tint = new double[3];
-            tint[0] = ((fogColor[0] * vibranceIntensity) + cloudColor.x) / 2;
-            tint[1] = ((fogColor[1] * vibranceIntensity) + cloudColor.y) / 2;
-            tint[2] = ((fogColor[2] * vibranceIntensity) + cloudColor.z) / 2;
+            tint[0] = ((AccessorFogRenderer.getFogRed() * vibranceIntensity) + cloudColor.x) / 2;
+            tint[1] = ((AccessorFogRenderer.getFogGreen() * vibranceIntensity) + cloudColor.y) / 2;
+            tint[2] = ((AccessorFogRenderer.getFogBlue() * vibranceIntensity) + cloudColor.z) / 2;
 
             cir.setReturnValue(new Vec3(tint[0], tint[1], tint[2]));
         }

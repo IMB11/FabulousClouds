@@ -1,11 +1,9 @@
 package net.misterslime.fabulousclouds.mixin;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.DebugScreenOverlay;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.misterslime.fabulousclouds.FabulousClouds;
 import net.misterslime.fabulousclouds.client.CloudTexture;
@@ -36,8 +34,7 @@ public class MixinDebugScreenOverlay {
             }
             GuiComponent.drawString(poseStack, this.minecraft.font, "Fading Pixels: " + pixels, this.minecraft.getWindow().getGuiScaledWidth() - 128, this.minecraft.getWindow().getGuiScaledHeight() - 140, color);
 
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
-            RenderSystem.setShaderTexture(0, CLOUDS_LOCATION);
+            this.minecraft.getTextureManager().bind(CLOUDS_LOCATION);
             GuiComponent.blit(poseStack, this.minecraft.getWindow().getGuiScaledWidth() - 128, this.minecraft.getWindow().getGuiScaledHeight() - 128, 0.0F, 0.0F, 128, 128, 128, 128);
         }
     }

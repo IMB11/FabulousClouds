@@ -2,10 +2,11 @@
   "required": true,
   "minVersion": "0.8",
   "package": "net.misterslime.fabulousclouds.mixin",
-  "compatibilityLevel": "JAVA_16",
+  "compatibilityLevel": "JAVA_8",
   "mixins": [
   ],
   "client": [
+    "AccessorFogRenderer",
     "MixinClientLevel",
     "MixinDebugScreenOverlay",
     "MixinLevelRenderer"

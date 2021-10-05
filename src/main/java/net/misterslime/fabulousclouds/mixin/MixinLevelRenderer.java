@@ -3,7 +3,6 @@ package net.misterslime.fabulousclouds.mixin;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import com.mojang.math.Matrix4f;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.CloudStatus;
 import net.minecraft.client.Minecraft;
@@ -47,7 +46,7 @@ public final class MixinLevelRenderer {
     }
 
     @Inject(method = "renderClouds", at = @At("HEAD"), cancellable = true)
-    public void renderClouds(PoseStack poseStack, Matrix4f model, float tickDelta, double cameraX, double cameraY, double cameraZ, CallbackInfo ci) {
+    public void renderClouds(PoseStack poseStack, float tickDelta, double cameraX, double cameraY, double cameraZ, CallbackInfo ci) {
         FabulousCloudsConfig config = FabulousClouds.getConfig();
 
         TextureManager textureManager = Minecraft.getInstance().getTextureManager();
@@ -55,19 +54,19 @@ public final class MixinLevelRenderer {
         NoiseCloudHandler.update();
 
         if (minecraft.level.dimension() == ClientLevel.OVERWORLD) {
-            float cloudHeight = DimensionSpecialEffects.OverworldEffects.CLOUD_LEVEL;
+            float cloudHeight = minecraft.level.effects().getCloudHeight();
             if (!Float.isNaN(cloudHeight)) {
                 int i = 0;
                 for (FabulousCloudsConfig.CloudLayer cloudLayer : config.cloud_layers) {
                     CloudTexture cloudTexture = NoiseCloudHandler.cloudTextures.get(i);
-                    renderCloudLayer(poseStack, model, tickDelta, cameraX, cameraY, cameraZ, cloudHeight, cloudLayer.offset, cloudLayer.scale, cloudLayer.speed, cloudTexture.resourceLocation);
+                    renderCloudLayer(poseStack, tickDelta, cameraX, cameraY, cameraZ, cloudHeight, cloudLayer.offset, cloudLayer.scale, cloudLayer.speed, cloudTexture.resourceLocation);
                     i++;
                 }
             }
 
             if (config.enable_default_cloud_layer) {
                 CloudTexture cloudTexture = NoiseCloudHandler.cloudTextures.get(NoiseCloudHandler.cloudTextures.size() - 1);
-                renderCloudLayer(poseStack, model, tickDelta, cameraX, cameraY, cameraZ, cloudHeight, 0, 1, 1, cloudTexture.resourceLocation);
+                renderCloudLayer(poseStack, tickDelta, cameraX, cameraY, cameraZ, cloudHeight, 0, 1, 1, cloudTexture.resourceLocation);
             }
         }
 
@@ -96,7 +95,7 @@ public final class MixinLevelRenderer {
         }
     }
 
-    private void renderCloudLayer(PoseStack poseStack, Matrix4f model, float tickDelta, double cameraX, double cameraY, double cameraZ, float cloudHeight, float cloudOffset, float cloudScale, float speedMod, ResourceLocation resourceLocation) {
+    private void renderCloudLayer(PoseStack poseStack, float tickDelta, double cameraX, double cameraY, double cameraZ, float cloudHeight, float cloudOffset, float cloudScale, float speedMod, ResourceLocation resourceLocation) {
         RenderSystem.disableCull();
         RenderSystem.enableBlend();
         RenderSystem.enableDepthTest();
@@ -125,28 +124,29 @@ public final class MixinLevelRenderer {
             this.generateClouds = true;
         }
 
-        RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
         if (this.generateClouds) {
             this.generateClouds = false;
             Tesselator tessellator = Tesselator.getInstance();
             BufferBuilder bufferBuilder = tessellator.getBuilder();
             if (this.cloudBuffer != null) this.cloudBuffer.close();
 
-            this.cloudBuffer = new VertexBuffer();
+            this.cloudBuffer = new VertexBuffer(DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
             this.buildCloudLayer(bufferBuilder, posX, posY, posZ, cloudOffset, cloudScale, cloudColor);
             bufferBuilder.end();
             this.cloudBuffer.upload(bufferBuilder);
         }
         if (FabricLoader.getInstance().isModLoaded("immersive_portals")) {
-            RenderSystem.setShaderTexture(0, CLOUDS_LOCATION);
+            this.minecraft.getTextureManager().bind(CLOUDS_LOCATION);
         } else {
-            RenderSystem.setShaderTexture(0, resourceLocation);
+            this.minecraft.getTextureManager().bind(resourceLocation);
         }
         FogRenderer.levelFogColor();
         poseStack.pushPose();
         poseStack.scale(scale, cloudScale, scale);
         poseStack.translate(-adjustedX, adjustedY, -adjustedZ);
         if (this.cloudBuffer != null) {
+            this.cloudBuffer.bind();
+            DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL.setupBufferState(0);
             int cloudMainIndex = this.prevCloudsType == CloudStatus.FANCY ? 0 : 1;
           
             for (int cloudIndex = 1; cloudMainIndex <= cloudIndex; ++cloudMainIndex) {
@@ -156,13 +156,15 @@ public final class MixinLevelRenderer {
                     RenderSystem.colorMask(true, true, true, true);
                 }
 
-                ShaderInstance shader = RenderSystem.getShader();
-                this.cloudBuffer.drawWithShader(poseStack.last().pose(), model, shader);
+                this.cloudBuffer.draw(poseStack.last().pose(), 7);
             }
+
+            VertexBuffer.unbind();
+            DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL.clearBufferState();
         }
 
         poseStack.popPose();
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.enableCull();
         RenderSystem.disableBlend();
     }
@@ -186,7 +188,7 @@ public final class MixinLevelRenderer {
         float redNS = redTop * 0.8f;
         float greenNS = greenTop * 0.8f;
         float blueNS = blueTop * 0.8f;
-        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
+        bufferBuilder.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
         float adjustedCloudY = (float)Math.floor(cloudY / cloudThickness) * cloudThickness;
         boolean offsetCloudRendering = FabulousClouds.getConfig().offset_cloud_rendering;
 
@@ -194,8 +196,8 @@ public final class MixinLevelRenderer {
             int scaledViewDistance = (int) ((minecraft.options.renderDistance / 4) / scale) / 2;
 
             if (offsetCloudRendering) {
-                float cloudHeightOffset = offset + DimensionSpecialEffects.OverworldEffects.CLOUD_LEVEL - 63;
-                float cloudHeightSeaLevel = DimensionSpecialEffects.OverworldEffects.CLOUD_LEVEL - 63;
+                float cloudHeightOffset = offset + minecraft.level.effects().getCloudHeight() - 63;
+                float cloudHeightSeaLevel = minecraft.level.effects().getCloudHeight() - 63;
 
                 if (cloudHeightOffset > cloudHeightSeaLevel) {
                     float offsetScale = cloudHeightOffset / cloudHeightSeaLevel;
@@ -258,8 +260,8 @@ public final class MixinLevelRenderer {
             int scaledRenderDistance = (int) (minecraft.options.renderDistance / scale);
 
             if (offsetCloudRendering) {
-                float cloudHeightOffset = offset + DimensionSpecialEffects.OverworldEffects.CLOUD_LEVEL - 63;
-                float cloudHeightSeaLevel = DimensionSpecialEffects.OverworldEffects.CLOUD_LEVEL - 63;
+                float cloudHeightOffset = offset + minecraft.level.effects().getCloudHeight() - 63;
+                float cloudHeightSeaLevel = minecraft.level.effects().getCloudHeight() - 63;
 
                 if (cloudHeightOffset > cloudHeightSeaLevel) {
                     float offsetScale = cloudHeightOffset / cloudHeightSeaLevel;

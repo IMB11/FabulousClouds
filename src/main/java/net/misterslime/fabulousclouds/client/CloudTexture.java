@@ -30,9 +30,9 @@ public class CloudTexture {
         Random random = new Random(time);
 
         switch (this.skyCover) {
-            case CLEAR  -> SkyCoverGenerators.clearSkyUpdate(random, this.noise, this.cloudsTexture.getPixels(), pixels, this.cloudiness);
-            case NORMAL -> SkyCoverGenerators.normalSkyUpdate(random, this.noise, this.cloudsTexture.getPixels(), pixels, this.cloudiness);
-            case CLOUDY -> SkyCoverGenerators.cloudySkyUpdate(random, this.noise, this.cloudsTexture.getPixels(), pixels, this.cloudiness);
+            case CLEAR: SkyCoverGenerators.clearSkyUpdate(random, this.noise, this.cloudsTexture.getPixels(), pixels, this.cloudiness);
+            case NORMAL: SkyCoverGenerators.normalSkyUpdate(random, this.noise, this.cloudsTexture.getPixels(), pixels, this.cloudiness);
+            case CLOUDY: SkyCoverGenerators.cloudySkyUpdate(random, this.noise, this.cloudsTexture.getPixels(), pixels, this.cloudiness);
         }
     }
 
@@ -76,9 +76,9 @@ public class CloudTexture {
         this.cloudiness = random.nextDouble();
 
         switch (skyCover) {
-            case CLEAR  -> SkyCoverGenerators.clearSkyGenerator(this.noise, image, this.cloudiness);
-            case NORMAL -> SkyCoverGenerators.normalSkyGenerator(this.noise, image, this.cloudiness);
-            case CLOUDY -> SkyCoverGenerators.cloudySkyGenerator(this.noise, image, this.cloudiness);
+            case CLEAR: SkyCoverGenerators.clearSkyGenerator(this.noise, image, this.cloudiness);
+            case NORMAL: SkyCoverGenerators.normalSkyGenerator(this.noise, image, this.cloudiness);
+            case CLOUDY: SkyCoverGenerators.cloudySkyGenerator(this.noise, image, this.cloudiness);
         }
 
         return new DynamicTexture(image);
