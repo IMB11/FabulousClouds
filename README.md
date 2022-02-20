@@ -8,7 +8,7 @@ ___
 
 ## Fabulous Clouds
 
-Fabulous Clouds is my first mod. The concept for Fabulous Clouds came when I got bedrock edition and realised that the clouds tinted during sunrise and sunset. I wanted to add this ingame, but I also wanted to do more with clouds than just this so I decided to add cloud layers too, and give people the ability to add their own cloud layers. Fabulous Clouds is entirely client side so you could use it on a server without everyone having to download the mod. Fabulous Clouds is compatible with Sodium and works on the 1.18 experimental snapshots.
+Fabulous Clouds is my first mod. The concept for Fabulous Clouds came when I got bedrock edition and realised that the clouds tinted during sunrise and sunset. I wanted to add this ingame, but I also wanted to do more with clouds than just this so I decided to add cloud layers too, and give people the ability to add their own cloud layers. Fabulous Clouds is entirely client side so you could use it on a server without everyone having to download the mod. Fabulous Clouds is compatible with Sodium.
 
 ![](https://cdn.discordapp.com/attachments/507982666755473427/875202883908435968/2021-08-11_20.17.17.png)
 
