@@ -1,8 +1,11 @@
 package net.misterslime.fabulousclouds.client;
 
 import com.mojang.blaze3d.platform.NativeImage;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.levelgen.PositionalRandomFactory;
+import net.minecraft.world.level.levelgen.RandomSource;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.synth.SimplexNoise;
 import net.misterslime.fabulousclouds.util.EnumUtil;
@@ -65,7 +68,7 @@ public class CloudTexture {
     }
 
     public void initNoise(Random random) {
-        this.noise = new SimplexNoise(new WorldgenRandom(random.nextLong()));
+        this.noise = new SimplexNoise(WorldgenRandom.Algorithm.LEGACY.newInstance(random.nextLong()));
     }
 
     public DynamicTexture getNativeImage() {
