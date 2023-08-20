@@ -1,7 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "net.misterslime.fabulousclouds.mixin",
+  "package": "com.mineblock11.fabulousclouds.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
   ],

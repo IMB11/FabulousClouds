@@ -2,25 +2,23 @@
   "schemaVersion": 1,
   "id": "fabulousclouds",
   "version": "${version}",
-
   "name": "Fabulous Clouds",
-  "description": "This mod makes the clouds look much better.",
+  "description": "Improves cloud rendering with layers and tinting based on the weather.",
   "authors": [
-    "misterslime"
+    "misterslime",
+    "mineblock11"
   ],
   "contact": {
     "homepage": "https://modrinth.com/mod/fabulousclouds",
-    "sources": "https://github.com/misterslime/fabulousclouds-fabric",
-    "issues": "https://github.com/misterslime/fabulousclouds-fabric/issues"
+    "sources": "https://github.com/mineblock11/FabulousClouds",
+    "issues": "https://github.com/mineblock11/FabulousClouds/issues"
   },
-
   "license": "CC0-1.0",
   "icon": "assets/fabulousclouds/icon.png",
-
   "environment": "client",
   "entrypoints": {
     "main": [
-      "net.misterslime.fabulousclouds.FabulousClouds"
+      "com.mineblock11.fabulousclouds.FabulousClouds"
     ],
     "modmenu": [
       "net.misterslime.fabulousclouds.config.ConfigModMenuIntegration"
@@ -29,15 +27,10 @@
   "mixins": [
     "fabulousclouds.mixins.json"
   ],
-
   "depends": {
     "fabricloader": ">=0.12.12",
-    "minecraft": ">=1.18",
+    "minecraft": ">=1.19 <=1.19.2",
     "java": ">=17"
-  },
-  "suggests": {
-    "modmenu": "^${modmenu_version}",
-    "cloth-config2": "^${cloth_version}"
   },
   "breaks": {
     "betterclouds": "*"

@@ -1,4 +1,4 @@
-package net.misterslime.fabulousclouds.config;
+package com.mineblock11.fabulousclouds.config;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
@@ -15,7 +15,7 @@ public class FabulousCloudsConfig {
     public boolean vibrant_clouds = true;
     public float vibrance_intensity = 1.0f;
     public boolean enable_default_cloud_layer = true;
-    public CloudLayer[] cloud_layers = new CloudLayer[] {
+    public CloudLayer[] cloud_layers = new CloudLayer[]{
             new CloudLayer(64.0f, 1.25f, -1.0f)
     };
     public boolean noise_clouds = true;
