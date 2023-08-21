@@ -1,11 +1,11 @@
 package com.mineblock11.fabulousclouds.client;
 
 import com.mineblock11.fabulousclouds.FabulousClouds;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.util.Identifier;
 
 import java.util.LinkedList;
 import java.util.List;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.Identifier;
 
 public final class NoiseCloudHandler {
 

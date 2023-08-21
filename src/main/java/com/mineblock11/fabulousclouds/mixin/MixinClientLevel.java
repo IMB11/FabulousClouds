@@ -1,10 +1,10 @@
 package com.mineblock11.fabulousclouds.mixin;
 
+import com.mineblock11.fabulousclouds.FabulousClouds;
 import com.mineblock11.fabulousclouds.config.FabulousCloudsConfig;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.Vec3d;
-import com.mineblock11.fabulousclouds.FabulousClouds;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ClientWorld.class)
 public class MixinClientLevel {
 
-    @Inject(method = "getCloudColor(F)Lnet/minecraft/world/phys/Vec3;", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "getCloudsColor", at = @At("RETURN"), cancellable = true)
     private void setCloudColor(float tickDelta, CallbackInfoReturnable<Vec3d> cir) {
         FabulousCloudsConfig config = FabulousClouds.getConfig();
 

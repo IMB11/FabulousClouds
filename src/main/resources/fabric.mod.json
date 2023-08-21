@@ -21,7 +21,7 @@
       "com.mineblock11.fabulousclouds.FabulousClouds"
     ],
     "modmenu": [
-      "net.misterslime.fabulousclouds.config.ConfigModMenuIntegration"
+      "com.mineblock11.fabulousclouds.config.ConfigModMenuIntegration"
     ]
   },
   "mixins": [

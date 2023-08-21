@@ -1,36 +1,26 @@
 package com.mineblock11.fabulousclouds.mixin;
 
+import com.mineblock11.fabulousclouds.FabulousClouds;
 import com.mineblock11.fabulousclouds.client.CloudTexture;
 import com.mineblock11.fabulousclouds.client.NoiseCloudHandler;
 import com.mineblock11.fabulousclouds.config.FabulousCloudsConfig;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.option.CloudRenderMode;
-import net.minecraft.client.render.BackgroundRenderer;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.DimensionEffects;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.Shader;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormats;
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.render.*;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.network.message.MessageType;
-import net.minecraft.text.TranslatableTextContent;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
-import com.mineblock11.fabulousclouds.FabulousClouds;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -46,30 +36,29 @@ public final class MixinLevelRenderer {
 
     @Final
     @Shadow
-    private static Identifier CLOUDS_LOCATION;
+    private static Identifier CLOUDS;
     @Shadow
     private final int ticks;
     @Final
     @Shadow
     @NotNull
-    private final MinecraftClient minecraft;
+    private final MinecraftClient client;
     @Shadow
-    private int prevCloudX;
+    @Nullable
+    private CloudRenderMode lastCloudRenderMode;
     @Shadow
-    private int prevCloudY;
+    @Nullable
+    private VertexBuffer cloudsBuffer;
     @Shadow
-    private int prevCloudZ;
+    private boolean cloudsDirty;
     @Shadow
-    @NotNull
-    private Vec3d prevCloudColor;
+    private int lastCloudsBlockX;
     @Shadow
-    @NotNull
-    private CloudRenderMode prevCloudsType;
+    private int lastCloudsBlockY;
     @Shadow
-    private boolean generateClouds;
+    private int lastCloudsBlockZ;
     @Shadow
-    @NotNull
-    private VertexBuffer cloudBuffer;
+    private Vec3d lastCloudsColor;
     @Unique
     private boolean initializedClouds = false;
 
@@ -85,7 +74,7 @@ public final class MixinLevelRenderer {
         registerClouds(textureManager);
         NoiseCloudHandler.update();
 
-        if (minecraft.world.getRegistryKey() == ClientWorld.OVERWORLD) {
+        if (client.world.getRegistryKey() == ClientWorld.OVERWORLD) {
             float cloudHeight = DimensionEffects.Overworld.CLOUDS_HEIGHT;
             if (!Float.isNaN(cloudHeight)) {
                 int i = 0;
@@ -109,7 +98,7 @@ public final class MixinLevelRenderer {
         if (!this.initializedClouds) {
             Random random = new Random();
 
-            NoiseCloudHandler.initCloudTextures(CLOUDS_LOCATION);
+            NoiseCloudHandler.initCloudTextures(CLOUDS);
 
             for (CloudTexture cloudTexture : NoiseCloudHandler.cloudTextures) {
                 cloudTexture.initNoise(random);
@@ -120,7 +109,7 @@ public final class MixinLevelRenderer {
             }
 
             if (FabricLoader.getInstance().isModLoaded("immersive_portals")) {
-                MinecraftClient.getInstance().inGameHud.handleChat(MessageType.SYSTEM, new TranslatableTextContent("messages.fabulousclouds.warn_immersive_portals"), MinecraftClient.getInstance().player.getUuid());
+                MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.translatable("messages.fabulousclouds.warn_immersive_portals"));
             }
 
             this.initializedClouds = true;
@@ -140,36 +129,35 @@ public final class MixinLevelRenderer {
         double posZ = cameraZ / scale + 0.33000001311302185D;
         posX -= Math.floor(posX / 2048.0D) * 2048;
         posZ -= Math.floor(posZ / 2048.0D) * 2048;
-        float adjustedX = (float) (posX - (double) Math.floor(posX));
-        float adjustedY = (float) (posY / 4.0D - (double) Math.floor(posY / 4.0D)) * 4.0F;
-        float adjustedZ = (float) (posZ - (double) Math.floor(posZ));
-        Vec3d cloudColor = minecraft.world.getCloudsColor(tickDelta);
+        float adjustedX = (float) (posX - Math.floor(posX));
+        float adjustedY = (float) (posY / 4.0D - Math.floor(posY / 4.0D)) * 4.0F;
+        float adjustedZ = (float) (posZ - Math.floor(posZ));
+        Vec3d cloudColor = client.world.getCloudsColor(tickDelta);
         int floorX = (int) Math.floor(posX);
         int floorY = (int) Math.floor(posY / 4.0D);
         int floorZ = (int) Math.floor(posZ);
-        if (floorX != this.prevCloudX || floorY != this.prevCloudY || floorZ != this.prevCloudZ || this.minecraft.options.getCloudRenderModeValue() != this.prevCloudsType || this.prevCloudColor.squaredDistanceTo(cloudColor) > 2.0E-4D) {
-            this.prevCloudX = floorX;
-            this.prevCloudY = floorY;
-            this.prevCloudZ = floorZ;
-            this.prevCloudColor = cloudColor;
-            this.prevCloudsType = this.minecraft.options.getCloudRenderModeValue();
-            this.generateClouds = true;
+        if (floorX != this.lastCloudsBlockX || floorY != this.lastCloudsBlockY || floorZ != this.lastCloudsBlockZ || this.client.options.getCloudRenderModeValue() != this.lastCloudRenderMode || this.lastCloudsColor.squaredDistanceTo(cloudColor) > 2.0E-4D) {
+            this.lastCloudsBlockX = floorX;
+            this.lastCloudsBlockY = floorY;
+            this.lastCloudsBlockZ = floorZ;
+            this.lastCloudsColor = cloudColor;
+            this.lastCloudRenderMode = this.client.options.getCloudRenderModeValue();
+            this.cloudsDirty = true;
         }
 
         RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
-        if (this.generateClouds) {
-            this.generateClouds = false;
+        if (this.cloudsDirty) {
+            this.cloudsDirty = false;
             Tessellator tessellator = Tessellator.getInstance();
             BufferBuilder bufferBuilder = tessellator.getBuffer();
-            if (this.cloudBuffer != null) this.cloudBuffer.close();
+            if (this.cloudsBuffer != null) this.cloudsBuffer.close();
 
-            this.cloudBuffer = new VertexBuffer();
+            this.cloudsBuffer = new VertexBuffer();
             this.buildCloudLayer(bufferBuilder, posX, posY, posZ, cloudOffset, cloudScale, cloudColor);
-            bufferBuilder.end();
-            this.cloudBuffer.upload(bufferBuilder);
+            this.cloudsBuffer.upload(bufferBuilder.end());
         }
         if (FabricLoader.getInstance().isModLoaded("immersive_portals")) {
-            RenderSystem.setShaderTexture(0, CLOUDS_LOCATION);
+            RenderSystem.setShaderTexture(0, CLOUDS);
         } else {
             RenderSystem.setShaderTexture(0, resourceLocation);
         }
@@ -177,8 +165,8 @@ public final class MixinLevelRenderer {
         poseStack.push();
         poseStack.scale(scale, cloudScale, scale);
         poseStack.translate(-adjustedX, adjustedY, -adjustedZ);
-        if (this.cloudBuffer != null) {
-            int cloudMainIndex = this.prevCloudsType == CloudRenderMode.FANCY ? 0 : 1;
+        if (this.cloudsBuffer != null) {
+            int cloudMainIndex = this.lastCloudRenderMode == CloudRenderMode.FANCY ? 0 : 1;
 
             for (int cloudIndex = 1; cloudMainIndex <= cloudIndex; ++cloudMainIndex) {
                 if (cloudMainIndex == 0) {
@@ -188,7 +176,7 @@ public final class MixinLevelRenderer {
                 }
 
                 Shader shader = RenderSystem.getShader();
-                this.cloudBuffer.draw(poseStack.peek().getPositionMatrix(), model, shader);
+                this.cloudsBuffer.draw(poseStack.peek().getPositionMatrix(), model, shader);
             }
         }
 
@@ -221,8 +209,8 @@ public final class MixinLevelRenderer {
         float adjustedCloudY = (float) Math.floor(cloudY / cloudThickness) * cloudThickness;
         boolean offsetCloudRendering = FabulousClouds.getConfig().offset_cloud_rendering;
 
-        if (this.prevCloudsType == CloudRenderMode.FANCY) {
-            int scaledViewDistance = (int) ((minecraft.options.viewDistance / 4) / scale) / 2;
+        if (this.lastCloudRenderMode == CloudRenderMode.FANCY) {
+            int scaledViewDistance = (int) ((client.options.getViewDistance().getValue() / 4) / scale) / 2;
 
             if (offsetCloudRendering) {
                 float cloudHeightOffset = offset + DimensionEffects.Overworld.CLOUDS_HEIGHT - 63;
@@ -286,7 +274,7 @@ public final class MixinLevelRenderer {
                 }
             }
         } else {
-            int scaledRenderDistance = (int) (minecraft.options.viewDistance / scale);
+            int scaledRenderDistance = (int) (client.options.getViewDistance().getValue() / scale);
 
             if (offsetCloudRendering) {
                 float cloudHeightOffset = offset + DimensionEffects.Overworld.CLOUDS_HEIGHT - 63;

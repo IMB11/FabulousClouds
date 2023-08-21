@@ -1,15 +1,13 @@
 package com.mineblock11.fabulousclouds;
 
+import com.mineblock11.fabulousclouds.config.ConfigScreenFactory;
 import com.mineblock11.fabulousclouds.config.FabulousCloudsConfig;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.screen.Screen;
-import net.misterslime.fabulousclouds.config.ConfigScreenFactory;
 
 import java.io.IOException;
 
 public class FabulousClouds implements ModInitializer {
-
     private static FabulousClouds instance;
     private static FabulousCloudsConfig config;
 
@@ -42,9 +40,6 @@ public class FabulousClouds implements ModInitializer {
     }
 
     public Screen createConfigScreen(Screen parent) {
-        if (FabricLoader.getInstance().isModLoaded("cloth-config2")) {
-            return ConfigScreenFactory.createConfigScreen(parent, config);
-        }
-        return null;
+        return ConfigScreenFactory.createConfigScreen(parent, config);
     }
 }

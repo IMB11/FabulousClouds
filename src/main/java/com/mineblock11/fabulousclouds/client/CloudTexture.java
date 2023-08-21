@@ -1,16 +1,16 @@
 package com.mineblock11.fabulousclouds.client;
 
 import com.mineblock11.fabulousclouds.util.EnumUtil;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.noise.SimplexNoiseSampler;
 import net.minecraft.util.math.random.ChunkRandom;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
 
 public class CloudTexture {
 
@@ -34,11 +34,11 @@ public class CloudTexture {
 
         switch (this.skyCover) {
             case CLEAR ->
-                    SkyCoverGenerators.clearSkyUpdate(random, this.noise, this.cloudsTexture.getPixels(), pixels, this.cloudiness);
+                    SkyCoverGenerators.clearSkyUpdate(random, this.noise, this.cloudsTexture.getImage(), pixels, this.cloudiness);
             case NORMAL ->
-                    SkyCoverGenerators.normalSkyUpdate(random, this.noise, this.cloudsTexture.getPixels(), pixels, this.cloudiness);
+                    SkyCoverGenerators.normalSkyUpdate(random, this.noise, this.cloudsTexture.getImage(), pixels, this.cloudiness);
             case CLOUDY ->
-                    SkyCoverGenerators.cloudySkyUpdate(random, this.noise, this.cloudsTexture.getPixels(), pixels, this.cloudiness);
+                    SkyCoverGenerators.cloudySkyUpdate(random, this.noise, this.cloudsTexture.getImage(), pixels, this.cloudiness);
         }
     }
 

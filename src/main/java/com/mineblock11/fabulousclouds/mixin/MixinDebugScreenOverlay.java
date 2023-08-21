@@ -1,6 +1,8 @@
 package com.mineblock11.fabulousclouds.mixin;
 
+import com.mineblock11.fabulousclouds.FabulousClouds;
 import com.mineblock11.fabulousclouds.client.CloudTexture;
+import com.mineblock11.fabulousclouds.client.NoiseCloudHandler;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
@@ -8,8 +10,6 @@ import net.minecraft.client.gui.hud.DebugHud;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-import com.mineblock11.fabulousclouds.FabulousClouds;
-import com.mineblock11.fabulousclouds.client.NoiseCloudHandler;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -24,7 +24,7 @@ public class MixinDebugScreenOverlay {
 
     @Shadow
     @Final
-    private MinecraftClient minecraft;
+    private MinecraftClient client;
 
     @Inject(method = "render", at = @At("TAIL"))
     private void renderCloudTex(MatrixStack poseStack, CallbackInfo ci) {
@@ -34,11 +34,11 @@ public class MixinDebugScreenOverlay {
             for (CloudTexture cloudTexture : NoiseCloudHandler.cloudTextures) {
                 pixels += cloudTexture.pixels.size();
             }
-            DrawableHelper.drawStringWithShadow(poseStack, this.minecraft.textRenderer, "Fading Pixels: " + pixels, this.minecraft.getWindow().getScaledWidth() - 128, this.minecraft.getWindow().getScaledHeight() - 140, color);
+            DrawableHelper.drawStringWithShadow(poseStack, this.client.textRenderer, "Fading Pixels: " + pixels, this.client.getWindow().getScaledWidth() - 128, this.client.getWindow().getScaledHeight() - 140, color);
 
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, CLOUDS_LOCATION);
-            DrawableHelper.drawTexture(poseStack, this.minecraft.getWindow().getScaledWidth() - 128, this.minecraft.getWindow().getScaledHeight() - 128, 0.0F, 0.0F, 128, 128, 128, 128);
+            DrawableHelper.drawTexture(poseStack, this.client.getWindow().getScaledWidth() - 128, this.client.getWindow().getScaledHeight() - 128, 0.0F, 0.0F, 128, 128, 128, 128);
         }
     }
 }

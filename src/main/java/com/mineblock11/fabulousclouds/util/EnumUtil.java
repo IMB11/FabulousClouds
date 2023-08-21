@@ -3,7 +3,6 @@ package com.mineblock11.fabulousclouds.util;
 import java.util.Random;
 
 public class EnumUtil {
-
     public static <T extends Enum<?>> T randomEnum(Class<T> clazz) {
         Random random = new Random();
         int x = random.nextInt(clazz.getEnumConstants().length);

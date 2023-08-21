@@ -1,9 +1,10 @@
 package com.mineblock11.fabulousclouds.client;
 
-import java.util.List;
-import java.util.Random;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.util.math.noise.SimplexNoiseSampler;
+
+import java.util.List;
+import java.util.Random;
 
 public class SkyCoverGenerators {
 
